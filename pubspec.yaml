@@ -1,5 +1,6 @@
-name: kkkk
-description: "A new Flutter project."
+# 프로젝트 메타정보 + 의존성 관리 파일
+name: ai_life_legacy
+description: " AI Life Legacy"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -19,7 +20,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.2
+  sdk: ">=3.4.0 <4.0.0" # Dart SDK 요구 범위
+
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +32,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  get: ^4.6.6  # GetX: 라우팅/DI/상태관리
+  dio: ^5.5.0  # Dio: HTTP 클라이언트
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -37,7 +41,7 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter
+    sdk: flutter  # 위젯 테스트 프레임워크
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
