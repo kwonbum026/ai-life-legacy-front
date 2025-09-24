@@ -3,6 +3,7 @@
 // 간단한 페이드 인 애니메이션 포함.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../app/core/routes/app_routes.dart';
@@ -50,46 +51,115 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     final auth = Get.find<AuthController>();
 
     return Scaffold(
+      backgroundColor: Colors.grey[100], // 연한 회색 배경
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        toolbarHeight: 0, // AppBar 높이를 0으로 설정하여 숨김
+      ),
       body: FadeTransition(
         opacity: _fade,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
                 const Spacer(),
-                Text('AI Life Legacy',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800, letterSpacing: -0.3,
-                    ),
-                    textAlign: TextAlign.center),
-                const SizedBox(height: 10),
-                Text('당신의 삶을 기록하고 책으로 남기세요',
-                    style: theme.textTheme.bodyLarge?.copyWith(color: Colors.black54),
-                    textAlign: TextAlign.center),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _goWrite(auth),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                    child: const Text('자서전 작성'),
+                // 메인 타이틀
+                const Text(
+                  'LIFE LEGACY',
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w300,
+                    color: Color(0xFF4A90E2), // 파란색
+                    letterSpacing: 8.0,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => _goView(auth),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                    child: const Text('자서전 보기'),
+                const SizedBox(height: 10),
+
+                // 서브 타이틀 - 첫 번째 줄
+                const Text(
+                  'AI와 융성인의 기술을 활용한',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF666666),
+                    height: 1.4,
                   ),
+                  textAlign: TextAlign.center,
+                ),
+
+                // 서브 타이틀 - 두 번째 줄
+                const Text(
+                  '맞춤형 사서전 제작 서비스',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF666666),
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const Spacer(),
+
+                // 버튼들을 담는 컨테이너
+                Column(
+                  children: [
+                    // 자서전 작성 버튼 (파란색 채워진 버튼)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () => _goWrite(auth),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4A90E2),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          '자서전 작성',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // 자서전 보기 버튼 (흰색 테두리 버튼)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: OutlinedButton(
+                        onPressed: () => _goView(auth),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF4A90E2),
+                          backgroundColor: Colors.white,
+                          side: const BorderSide(
+                            color: Color(0xFF4A90E2),
+                            width: 1.5,
+                          ),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          '자서전 보기',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const Spacer(),
                 Obx(() => Text(
