@@ -1,5 +1,7 @@
 // GetX 라우트 등록. 경로 → 화면(page) + DI(binding) 매핑.
 
+import 'package:ai_life_legacy/features/journal/presentation/bindings.dart';
+import 'package:ai_life_legacy/features/journal/presentation/controllers/journal_controller.dart';
 import 'package:get/get.dart';
 import '../../../features/main/presentation/pages/main_page.dart';
 import '../../../features/auth/presentation/pages/login_page.dart';
@@ -13,6 +15,6 @@ class AppPages {
   static final pages = <GetPage>[
     GetPage(name: Routes.main,  page: () => const MainPage(),  binding: AuthBinding()),   // 시작 시 AuthController 주입(세션 확인 위해)
     GetPage(name: Routes.login, page: () => const LoginPage(), binding: AuthBinding()),   // 로그인 화면도 Auth 사용
-    GetPage(name: Routes.home,  page: () => const HomePage(),  binding: AuthBinding()),   // 홈에서도 인증 상태 접근
+    GetPage(name: Routes.home, page: () => const HomePage(), bindings: [AuthBinding(), JournalBinding(),],),
   ];
 }
