@@ -7,6 +7,7 @@ import '../../../features/main/presentation/pages/main_page.dart';
 import '../../../features/auth/presentation/pages/login_page.dart';
 import '../../../features/auth/presentation/bindings.dart';
 import '../../../features/journal/presentation/pages/home_page.dart';
+import '../../../features/journal/presentation/pages/selfIntro_page.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -16,5 +17,6 @@ class AppPages {
     GetPage(name: Routes.main,  page: () => const MainPage(),  binding: AuthBinding()),   // 시작 시 AuthController 주입(세션 확인 위해)
     GetPage(name: Routes.login, page: () => const LoginPage(), binding: AuthBinding()),   // 로그인 화면도 Auth 사용
     GetPage(name: Routes.home, page: () => const HomePage(), bindings: [AuthBinding(), JournalBinding(),],),
+    GetPage(name: Routes.selfIntro, page: () => const SelfIntroPage(), bindings: [AuthBinding(), JournalBinding(),],),
   ];
 }
