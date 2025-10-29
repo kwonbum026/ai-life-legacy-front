@@ -43,6 +43,7 @@ class JournalController extends GetxController {
   void onBackPressed() => Get.back();
 }
 
+
 // 자기소개 작성
 class SelfIntroController  extends GetxController {
   final textController = TextEditingController();
@@ -50,10 +51,40 @@ class SelfIntroController  extends GetxController {
   final RxInt recordingSeconds = 0.obs;
   Timer? recordingTimer;
 
+  // 채팅 목록 & 스크롤 컨트롤러
+  final RxList<ChatMessage> messages = <ChatMessage>[].obs;
+  final ScrollController scrollController = ScrollController();
+
+  // 메시지 추가(전송 시 호출)
+  void addMessage(String text, {bool isUser = true}) {
+    final t = text.trim();
+    if (t.isEmpty) return;
+    messages.add(ChatMessage(t, isUser: isUser));
+    _scrollToBottom();
+  }
+
+  // 자동 스크롤 함수
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!scrollController.hasClients) return;
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+
   @override
   void onClose() {
+    // 뒤로가기 시 홈 탭으로 복귀
+    final journalController = Get.find<JournalController>();
+    journalController.selectedTabIndex.value = 0;
+
     textController.dispose();
     recordingTimer?.cancel();
+    scrollController.dispose();
     super.onClose();
   }
 
@@ -104,4 +135,11 @@ class ChapterModel {
     required this.subtitle,
     required this.progress,
   });
+}
+
+// 메시지 모델(단순): 필요하면 role 구분용
+class ChatMessage {
+  final String text;
+  final bool isUser;
+  ChatMessage(this.text, {this.isUser = true});
 }

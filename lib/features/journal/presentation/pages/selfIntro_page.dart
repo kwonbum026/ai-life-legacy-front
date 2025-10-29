@@ -29,55 +29,48 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
         children: [
           // 메인 컨텐츠 영역
           Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Obx(() {
+              return ListView(
+                controller: controller.scrollController,
+                padding: const EdgeInsets.all(20),
                 children: [
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // 질문 카드
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Color(0xFFF5F5F5),
+                      color: const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Text(
+                    child: const Text(
                       '언제 어디서 태어났나요? 부모님이나 가족들이\n당신의 유아기에 대해 어떤 이야기를 해주셨나요?',
-                      style: TextStyle(
-                        fontSize: 18,
-                        height: 1.5,
-                        color: Colors.black87,
-                      ),
+                      style: TextStyle(fontSize: 18, height: 1.5, color: Colors.black87),
                     ),
                   ),
-                  SizedBox(height: 24),
-                  // 다시 듣러취 버튼
+                  const SizedBox(height: 24),
+                  // 다시 들려줘 버튼 (그대로)
                   OutlinedButton(
-                    onPressed: () {
-                      // 다시 듣기 기능
-                    },
+                    onPressed: () { /* TODO: 다시 듣기 */ },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Color(0xFF5B9FED),
-                      side: BorderSide(color: Color(0xFF5B9FED), width: 2),
-                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
+                      foregroundColor: const Color(0xFF5B9FED),
+                      side: const BorderSide(color: Color(0xFF5B9FED), width: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                     ),
-                    child: Text(
-                      '다시 들려줘',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: const Text('다시 들려줘', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
+                  const SizedBox(height: 24),
+
+                  // 🔹 채팅 말풍선 렌더
+                  ...controller.messages.map((m) => _Bubble(text: m.text, isUser: m.isUser)).toList(),
+
+                  const SizedBox(height: 80), // 하단 입력 영역과 겹치지 않게 여유
                 ],
-              ),
-            ),
+              );
+            }),
           ),
+
           // 하단 입력 영역
           Container(
             decoration: BoxDecoration(
@@ -115,6 +108,10 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                           ),
                           style: TextStyle(fontSize: 16),
                           maxLines: 1,
+                          onSubmitted: (v) {
+                            controller.addMessage(v);
+                            controller.clearText();
+                          },
                         ),
                       ),
                       SizedBox(width: 8),
@@ -127,12 +124,14 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                         child: IconButton(
                           icon: Icon(Icons.arrow_upward, color: Colors.white),
                           onPressed: () {
-                            // 전송 기능
-                            if (controller.textController.text.isNotEmpty) {
-                              print('전송: ${controller.textController.text}');
-                              controller.clearText();
-                            }
+                            final text = controller.textController.text;
+                            if (text.trim().isEmpty) return;
+                            print('전송: $text');
+                            controller.addMessage(text);
+                            controller.addMessage('좋아요, 계속 이야기해 주세요!', isUser: false);  // 시스템
+                            controller.clearText();
                           },
+
                         ),
                       ),
                     ],
@@ -199,6 +198,35 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// 말풍선 위젯
+class _Bubble extends StatelessWidget {
+  final String text;
+  final bool isUser;
+  const _Bubble({required this.text, required this.isUser});
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = isUser ? const Color(0xFF5B9FED) : const Color(0xFFEDEDED);
+    final fg = isUser ? Colors.white : Colors.black87;
+    final align = isUser ? Alignment.centerRight : Alignment.centerLeft;
+    final margin = isUser ? const EdgeInsets.only(left: 60, bottom: 10)
+        : const EdgeInsets.only(right: 60, bottom: 10);
+
+    return Align(
+      alignment: align,
+      child: Container(
+        margin: margin,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Text(text, style: TextStyle(color: fg, fontSize: 16, height: 1.4)),
       ),
     );
   }
