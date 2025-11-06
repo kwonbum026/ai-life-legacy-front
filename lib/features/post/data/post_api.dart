@@ -28,7 +28,7 @@ class LifeLegacyApi {
     );
     return SuccessResponse<void>.fromJson(
       response.data,
-      (json) => null,
+      (_) {},
     );
   }
 }

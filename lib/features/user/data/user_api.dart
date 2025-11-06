@@ -17,7 +17,7 @@ class UserApi {
     );
     return SuccessResponse<void>.fromJson(
       response.data,
-      (json) => null,
+      (_) {},
     );
   }
 
@@ -65,7 +65,7 @@ class UserApi {
     );
     return SuccessResponse<void>.fromJson(
       response.data,
-      (json) => null,
+      (_) {},
     );
   }
 }

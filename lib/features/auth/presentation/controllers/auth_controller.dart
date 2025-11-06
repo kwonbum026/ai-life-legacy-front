@@ -4,8 +4,7 @@
 import 'package:get/get.dart';
 import '../../data/auth_repository.dart';
 import '../../data/models/auth.dto.dart';
-import '../../../app/core/utils/token_storage.dart';
-import '../../../app/core/models/response.dart';
+import '../../../../app/core/utils/token_storage.dart';
 import '../../../../app/core/routes/app_routes.dart';
 
 class AuthController extends GetxController {

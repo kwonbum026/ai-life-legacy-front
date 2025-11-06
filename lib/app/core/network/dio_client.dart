@@ -4,7 +4,6 @@
 import 'package:dio/dio.dart';
 import '../config/env.dart';
 import '../utils/token_storage.dart';
-import '../utils/jwt_utils.dart';
 import 'api_endpoints.dart';
 
 class DioClient {

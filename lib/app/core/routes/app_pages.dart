@@ -1,7 +1,6 @@
 // GetX 라우트 등록. 경로 → 화면(page) + DI(binding) 매핑.
 
 import 'package:ai_life_legacy/features/journal/presentation/bindings.dart';
-import 'package:ai_life_legacy/features/journal/presentation/controllers/journal_controller.dart';
 import 'package:get/get.dart';
 import '../../../features/main/presentation/pages/main_page.dart';
 import '../../../features/auth/presentation/pages/login_page.dart';

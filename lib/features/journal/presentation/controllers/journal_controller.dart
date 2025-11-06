@@ -5,8 +5,7 @@ import '../../../../app/core/routes/app_routes.dart';
 import '../../../user/data/user_repository.dart';
 import '../../../user/data/models/user.dto.dart';
 import '../../../post/data/post_repository.dart';
-import '../../../app/core/utils/token_storage.dart';
-import '../../../app/core/utils/jwt_utils.dart';
+import '../../../../app/core/utils/token_storage.dart';
 
 
 // home_page controller
