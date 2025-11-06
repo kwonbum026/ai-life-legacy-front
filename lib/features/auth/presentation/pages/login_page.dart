@@ -9,7 +9,7 @@ class LoginPage extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     final emailController = TextEditingController();
-    final couponController = TextEditingController();
+    final passwordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -81,9 +81,9 @@ class LoginPage extends GetView<AuthController> {
 
                 const SizedBox(height: 28),
 
-                // 쿠폰번호 라벨
+                // 비밀번호 라벨
                 const Text(
-                  '쿠폰번호',
+                  '비밀번호',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -93,11 +93,12 @@ class LoginPage extends GetView<AuthController> {
 
                 const SizedBox(height: 12),
 
-                // 쿠폰번호 입력 필드
+                // 비밀번호 입력 필드
                 TextField(
-                  controller: couponController,
+                  controller: passwordController,
+                  obscureText: true,
                   decoration: InputDecoration(
-                    hintText: '쿠폰번호를 입력해주세요.',
+                    hintText: '비밀번호를 입력해주세요.',
                     hintStyle: TextStyle(
                       color: Colors.grey[400],
                       fontSize: 15,
@@ -129,15 +130,25 @@ class LoginPage extends GetView<AuthController> {
                 SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: 실제 로그인 로직 구현
-                      // 예: controller.login(emailController.text, couponController.text);
-
-                      // 지금은 데모용 로그인
-                      controller.demoLogin();
-                      Get.offAllNamed(Routes.home);
-                    },
+                  child: Obx(() => ElevatedButton(
+                    onPressed: controller.loading.value
+                        ? null
+                        : () async {
+                            final email = emailController.text.trim();
+                            final password = passwordController.text.trim();
+                            if (email.isEmpty || password.isEmpty) {
+                              Get.snackbar('입력 필요', '이메일과 비밀번호를 입력하세요.');
+                              return;
+                            }
+                            final ok = await controller.login(email, password);
+                            if (ok) {
+                              Get.offAllNamed(Routes.home);
+                            } else {
+                              Get.snackbar('로그인 실패', controller.errorMessage.value.isEmpty
+                                  ? '이메일 또는 비밀번호를 확인하세요.'
+                                  : controller.errorMessage.value);
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF007AFF),
                       shape: RoundedRectangleBorder(
@@ -145,15 +156,24 @@ class LoginPage extends GetView<AuthController> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      '로그인',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                    child: controller.loading.value
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            '로그인',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                  )),
                 ),
               ],
             ),
