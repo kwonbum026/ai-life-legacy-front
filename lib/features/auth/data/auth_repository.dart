@@ -1,11 +1,21 @@
 // Repository: DataSource(API/DB 등)들을 조합하고
 // Domain/UseCase에서 쓰기 좋은 형태로 변환하는 계층.
-// 여기서는 간단히 API → bool만 반환.
 import 'auth_api.dart';
+import 'models/auth.dto.dart';
+import '../../../app/core/models/response.dart';
 
 /// 도메인이 의존하는 추상 인터페이스.
 /// 장점: 구현체 교체/테스트 더블 주입 용이.
 abstract class AuthRepository {
+  Future<Success201Response<JwtTokenResponseDto>> signUp(
+    AuthCredentialsDto credentials,
+  );
+  Future<SuccessResponse<JwtTokenResponseDto>> login(
+    AuthCredentialsDto credentials,
+  );
+  Future<SuccessResponse<JwtTokenResponseDto>> refreshToken(
+    RefreshTokenDto refreshTokenDto,
+  );
   Future<bool> checkSession();
 }
 
@@ -14,6 +24,24 @@ abstract class AuthRepository {
 class AuthRepositoryImpl implements AuthRepository {
   final AuthApi api;
   AuthRepositoryImpl(this.api);
+
+  @override
+  Future<Success201Response<JwtTokenResponseDto>> signUp(
+    AuthCredentialsDto credentials,
+  ) =>
+      api.signUp(credentials);
+
+  @override
+  Future<SuccessResponse<JwtTokenResponseDto>> login(
+    AuthCredentialsDto credentials,
+  ) =>
+      api.login(credentials);
+
+  @override
+  Future<SuccessResponse<JwtTokenResponseDto>> refreshToken(
+    RefreshTokenDto refreshTokenDto,
+  ) =>
+      api.refreshToken(refreshTokenDto);
 
   @override
   Future<bool> checkSession() => api.checkSession();
