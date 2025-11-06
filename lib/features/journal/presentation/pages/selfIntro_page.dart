@@ -109,7 +109,9 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                           style: TextStyle(fontSize: 16),
                           maxLines: 1,
                           onSubmitted: (v) {
+                            if (v.trim().isEmpty) return;
                             controller.addMessage(v);
+                            controller.saveAnswer(v);
                             controller.clearText();
                           },
                         ),
@@ -126,9 +128,8 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                           onPressed: () {
                             final text = controller.textController.text;
                             if (text.trim().isEmpty) return;
-                            print('전송: $text');
                             controller.addMessage(text);
-                            controller.addMessage('좋아요, 계속 이야기해 주세요!', isUser: false);  // 시스템
+                            controller.saveAnswer(text);
                             controller.clearText();
                           },
 

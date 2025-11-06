@@ -2,25 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import '../../../../app/core/routes/app_routes.dart';
+import '../../../user/data/user_repository.dart';
+import '../../../user/data/models/user.dto.dart';
+import '../../../post/data/post_repository.dart';
+import '../../../app/core/utils/token_storage.dart';
+import '../../../app/core/utils/jwt_utils.dart';
 
 
 // home_page controller
 class JournalController extends GetxController {
-  // reactive state
-  final RxList<ChapterModel> chapters = <ChapterModel>[
-    ChapterModel(id: 1, title: "청소년기와 학창시절", subtitle: "따뜻했던 우리 가족 이야기", progress: 0.7),
-    ChapterModel(id: 2, title: "가족환경과 성장환경", subtitle: "따뜻했던 우리 가족 이야기", progress: 0.6),
-    ChapterModel(id: 3, title: "청소년기와 학창시절", subtitle: "따뜻했던 우리 가족 이야기", progress: 0.8),
-    ChapterModel(id: 4, title: "청소년기와 학창시절", subtitle: "따뜻했던 우리 가족 이야기", progress: 0.5),
-    ChapterModel(id: 5, title: "청소년기와 학창시절", subtitle: "따뜻했던 우리 가족 이야기", progress: 0.6),
-  ].obs;
+  final UserRepository userRepo;
+  JournalController(this.userRepo);
 
+  // reactive state
+  final RxList<ChapterModel> chapters = <ChapterModel>[].obs;
   final RxInt selectedTabIndex = 0.obs;
+  final RxBool loading = false.obs;
+  final RxString errorMessage = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadUserContents();
+  }
+
+  /// 사용자 목차 불러오기
+  Future<void> loadUserContents() async {
+    loading.value = true;
+    errorMessage.value = '';
+    try {
+      // 토큰 확인
+      final accessToken = TokenStorage.getAccessToken();
+      if (accessToken == null) {
+        errorMessage.value = '로그인이 필요합니다';
+        return;
+      }
+
+      // API 호출 (/users/me/toc)
+      final result = await userRepo.getUserToc();
+      chapters.value = result.data.map((toc) => ChapterModel(
+        id: toc.id,
+        title: toc.title,
+        subtitle: '진행률 계산 필요', // TODO: 실제 진행률 계산
+        progress: 0.0, // TODO: 질문 완료 수 기반으로 계산
+      )).toList();
+    } catch (e) {
+      errorMessage.value = e.toString();
+      // 에러 발생 시 빈 배열로 설정
+      chapters.value = [];
+    } finally {
+      loading.value = false;
+    }
+  }
 
   // 액션
   void onChapterTap(ChapterModel chapter) {
     print("챕터 ${chapter.id} 클릭됨: ${chapter.title}");
-    // TODO: 상세 페이지 이동
+    // SelfIntroPage로 이동하면서 tocId 전달
+    Get.toNamed(Routes.selfIntro, arguments: {'tocId': chapter.id});
   }
 
   // 하단 버튼 변경
@@ -45,7 +84,12 @@ class JournalController extends GetxController {
 
 
 // 자기소개 작성
-class SelfIntroController  extends GetxController {
+class SelfIntroController extends GetxController {
+  final UserRepository userRepo;
+  final PostRepository postRepo;
+  
+  SelfIntroController(this.userRepo, this.postRepo);
+
   final textController = TextEditingController();
   final RxBool isRecording = false.obs;
   final RxInt recordingSeconds = 0.obs;
@@ -54,6 +98,70 @@ class SelfIntroController  extends GetxController {
   // 채팅 목록 & 스크롤 컨트롤러
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final ScrollController scrollController = ScrollController();
+
+  // 현재 목차와 질문 정보
+  int? currentTocId;
+  List<TocQuestionDto> questions = [];
+  int currentQuestionIndex = 0;
+  final RxBool loading = false.obs;
+  final RxString errorMessage = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // arguments에서 tocId 가져오기
+    final arguments = Get.arguments;
+    if (arguments != null && arguments['tocId'] != null) {
+      currentTocId = arguments['tocId'] as int;
+      loadQuestions();
+    }
+  }
+
+  /// 질문 목록 불러오기
+  Future<void> loadQuestions() async {
+    if (currentTocId == null) return;
+
+    loading.value = true;
+    errorMessage.value = '';
+    try {
+      final result = await postRepo.getTocQuestions(currentTocId!);
+      questions = result.data;
+      
+      // 첫 번째 질문을 화면에 표시
+      if (questions.isNotEmpty) {
+        addMessage(questions[0].question, isUser: false);
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /// 답변 저장
+  Future<void> saveAnswer(String answer) async {
+    if (currentTocId == null || questions.isEmpty) return;
+
+    loading.value = true;
+    try {
+      final currentQuestion = questions[currentQuestionIndex];
+      final saveDto = AnswerSaveDto(answerText: answer);
+
+      await postRepo.saveAnswer(currentQuestion.id, saveDto);
+      
+      // 다음 질문이 있으면 표시
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        addMessage(questions[currentQuestionIndex].question, isUser: false);
+      } else {
+        addMessage('모든 질문에 답변하셨습니다!', isUser: false);
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+    } finally {
+      loading.value = false;
+    }
+  }
 
   // 메시지 추가(전송 시 호출)
   void addMessage(String text, {bool isUser = true}) {
