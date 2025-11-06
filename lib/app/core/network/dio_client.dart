@@ -3,6 +3,9 @@
 
 import 'package:dio/dio.dart';
 import '../config/env.dart';
+import '../utils/token_storage.dart';
+import '../utils/jwt_utils.dart';
+import 'api_endpoints.dart';
 
 class DioClient {
   // 실제 HTTP 요청을 담당하는 객체.
@@ -23,6 +26,76 @@ class DioClient {
         headers: {'Content-Type': 'application/json'},
       ),
     );
-    // TODO: 인터셉터(토큰 주입/로깅/에러핸들링) 추가 지점
+
+    // 인터셉터 추가: 토큰 자동 주입 및 갱신
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // 인증이 필요한 API에 토큰 자동 추가
+          final accessToken = TokenStorage.getAccessToken();
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+          return handler.next(options);
+        },
+        onError: (error, handler) async {
+          // 401 에러 시 토큰 갱신 시도
+          if (error.response?.statusCode == 401) {
+            try {
+              await _refreshTokenAndRetry(error.requestOptions, handler);
+            } catch (e) {
+              // 토큰 갱신 실패 시 로그아웃 처리
+              await TokenStorage.clearAll();
+              return handler.reject(error);
+            }
+          } else {
+            return handler.next(error);
+          }
+        },
+      ),
+    );
+  }
+
+  /// 토큰 갱신 후 요청 재시도
+  static Future<void> _refreshTokenAndRetry(
+    RequestOptions requestOptions,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final refreshToken = TokenStorage.getRefreshToken();
+    if (refreshToken == null) {
+      throw Exception('Refresh token not found');
+    }
+
+    try {
+      // 토큰 갱신 API 호출 (순환 참조 방지를 위해 직접 호출)
+      final response = await _dio.post(
+        ApiEndpoints.refreshToken,
+        data: {'refreshToken': refreshToken},
+      );
+
+      final result = response.data as Map<String, dynamic>;
+      final tokenData = result['data'] as Map<String, dynamic>;
+      
+      final newAccessToken = tokenData['accessToken'] as String;
+      final newRefreshToken = tokenData['refreshToken'] as String;
+
+      // 새 토큰 저장
+      await TokenStorage.saveTokens(
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      );
+
+      // 원래 요청 재시도
+      requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+      final retryResponse = await _dio.fetch(requestOptions);
+      return handler.resolve(retryResponse);
+    } catch (e) {
+      return handler.reject(
+        DioException(
+          requestOptions: requestOptions,
+          error: e,
+        ),
+      );
+    }
   }
 }

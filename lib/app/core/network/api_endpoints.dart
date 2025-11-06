@@ -8,28 +8,22 @@ class ApiEndpoints {
 
   // 인증 API
   static const signUp = '/auth/signup';
-  static const signIn = '/auth/signin';
+  static const login = '/auth/login';
   static const refreshToken = '/auth/refresh';
 
   // 사용자 API
-  static String getUserCases(String uuid) => '/users/$uuid/cases';
-  static String setUserCases(String uuid) => '/users/$uuid/cases';
-  static String getUserContents(String uuid) => '/users/$uuid/contents';
-  static String getUserContentQuestions(String uuid, int contentsId) =>
-      '/users/$uuid/contents/$contentsId/questions';
-  static String getUserPosts(String uuid) => '/users/$uuid/posts';
-  static String deleteUser(String uuid, {int? deleteType}) {
-    if (deleteType != null) {
-      return '/users/$uuid?deleteType=$deleteType';
+  static const userIntro = '/users/me/intro';
+  static const userToc = '/users/me/toc';
+  static const userTocQuestions = '/users/me/toc-questions';
+  static String userAnswers({int? questionId}) {
+    if (questionId != null) {
+      return '/users/me/answers?questionId=$questionId';
     }
-    return '/users/$uuid';
+    return '/users/me/answers';
   }
+  static String userAnswerUpdate(int answerId) => '/users/me/answers/$answerId';
 
-  // AI API
-  static const aiCase = '/ai/case';
-  static const aiQuestion = '/ai/question';
-  static const aiCombine = '/ai/combine';
-
-  // 게시글 API
-  static const post = '/post/';
+  // 인생 유산 API
+  static String tocQuestions(int tocId) => '/life-legacy/toc/$tocId/questions';
+  static String questionAnswer(int questionId) => '/life-legacy/questions/$questionId/answers';
 }

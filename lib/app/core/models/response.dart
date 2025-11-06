@@ -5,12 +5,12 @@
 class SuccessResponse<T> {
   final int status;
   final String message;
-  final T result;
+  final T data;
 
   SuccessResponse({
     required this.status,
     required this.message,
-    required this.result,
+    required this.data,
   });
 
   factory SuccessResponse.fromJson(
@@ -20,7 +20,7 @@ class SuccessResponse<T> {
     return SuccessResponse<T>(
       status: json['status'] as int,
       message: json['message'] as String,
-      result: fromJsonT(json['result']),
+      data: fromJsonT(json['data']),
     );
   }
 
@@ -28,7 +28,7 @@ class SuccessResponse<T> {
     return {
       'status': status,
       'message': message,
-      'result': result,
+      'data': data,
     };
   }
 }
@@ -37,12 +37,12 @@ class SuccessResponse<T> {
 class Success201Response<T> {
   final int status;
   final String message;
-  final T result;
+  final T data;
 
   Success201Response({
     required this.status,
     required this.message,
-    required this.result,
+    required this.data,
   });
 
   factory Success201Response.fromJson(
@@ -52,7 +52,7 @@ class Success201Response<T> {
     return Success201Response<T>(
       status: json['status'] as int,
       message: json['message'] as String,
-      result: fromJsonT(json['result']),
+      data: fromJsonT(json['data']),
     );
   }
 
@@ -60,25 +60,28 @@ class Success201Response<T> {
     return {
       'status': status,
       'message': message,
-      'result': result,
+      'data': data,
     };
   }
 }
 
-/// 204 No Content 응답
+/// 204 No Content 응답 (data가 null인 경우)
 class Success204Response {
   final int status;
   final String message;
+  final dynamic data;
 
   Success204Response({
     required this.status,
     required this.message,
+    this.data,
   });
 
   factory Success204Response.fromJson(Map<String, dynamic> json) {
     return Success204Response(
       status: json['status'] as int,
       message: json['message'] as String,
+      data: json['data'],
     );
   }
 
@@ -86,6 +89,7 @@ class Success204Response {
     return {
       'status': status,
       'message': message,
+      'data': data,
     };
   }
 }
@@ -94,16 +98,19 @@ class Success204Response {
 class ErrorResponse {
   final int status;
   final String message;
+  final dynamic data;
 
   ErrorResponse({
     required this.status,
     required this.message,
+    this.data,
   });
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) {
     return ErrorResponse(
       status: json['status'] as int,
       message: json['message'] as String,
+      data: json['data'],
     );
   }
 
@@ -111,7 +118,10 @@ class ErrorResponse {
     return {
       'status': status,
       'message': message,
+      'data': data,
     };
   }
 }
+
+
 
