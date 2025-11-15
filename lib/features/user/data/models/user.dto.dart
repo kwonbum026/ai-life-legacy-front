@@ -11,9 +11,19 @@ class UserTocDto {
   });
 
   factory UserTocDto.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id'] ?? json['tocId'];
+    final rawTitle = json['title'] ?? json['tocTitle'];
+
+    if (rawId == null) {
+      throw ArgumentError('UserTocDto: id/tocId is required. payload=$json');
+    }
+    if (rawTitle == null) {
+      throw ArgumentError('UserTocDto: title/tocTitle is required. payload=$json');
+    }
+
     return UserTocDto(
-      id: json['id'] as int,
-      title: json['title'] as String,
+      id: rawId is int ? rawId : int.tryParse(rawId.toString()) ?? (throw ArgumentError('UserTocDto: invalid id "$rawId"')),
+      title: rawTitle.toString(),
     );
   }
 
@@ -114,16 +124,19 @@ class TocQuestionDto {
 class UserAnswerDto {
   final int questionId;
   final String answerText;
+  final int? answerId;
 
   UserAnswerDto({
     required this.questionId,
     required this.answerText,
+    this.answerId,
   });
 
   factory UserAnswerDto.fromJson(Map<String, dynamic> json) {
     return UserAnswerDto(
       questionId: json['questionId'] as int,
-      answerText: json['answerText'] as String,
+      answerText: json['answerText'] as String? ?? '',
+      answerId: json['answerId'] as int? ?? json['id'] as int?,
     );
   }
 
@@ -131,6 +144,7 @@ class UserAnswerDto {
     return {
       'questionId': questionId,
       'answerText': answerText,
+      if (answerId != null) 'answerId': answerId,
     };
   }
 }

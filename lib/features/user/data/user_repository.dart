@@ -1,8 +1,8 @@
 // 사용자 관련 Repository
 
-import 'user_api.dart';
-import 'models/user.dto.dart';
-import '../../../app/core/models/response.dart';
+import 'package:ai_life_legacy/features/user/data/user_api.dart';
+import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
+import 'package:ai_life_legacy/app/core/models/response.dart';
 
 abstract class UserRepository {
   Future<SuccessResponse<void>> saveUserIntro(UserIntroDto dto);

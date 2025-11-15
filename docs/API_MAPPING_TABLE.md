@@ -4,25 +4,21 @@
 
 | 화면 | API 엔드포인트 | Method | 설명 | 사용 시점 | 우선순위 |
 |------|---------------|--------|------|-----------|----------|
-| **로그인 페이지** |
-| | `/auth/signup` | POST | 회원가입 | 회원가입 버튼 클릭 | 🔴 필수 |
-| | `/auth/signin` | POST | 로그인 | 로그인 버튼 클릭 | 🔴 필수 |
-| | `/auth/refresh` | POST | 토큰 갱신 | AccessToken 만료 시 (자동) | 🔴 필수 |
-| **홈 페이지** |
-| | `/users/:uuid/contents` | GET | 목차 목록 조회 | 페이지 진입 시 | 🔴 필수 |
-| | `/users/:uuid/cases` | GET | 케이스 조회 | 첫 진입 시 (선택) | 🟡 선택 |
-| **자기소개 작성 페이지** |
-| | `/users/:uuid/contents/:contentsId/questions` | GET | 질문 목록 조회 | 페이지 진입 시 | 🔴 필수 |
-| | `/ai/case` | POST | 케이스 분류 AI | 초기 입력 시 (케이스 없을 때) | 🟡 선택 |
-| | `/users/:uuid/cases` | PUT | 케이스 저장 | AI 분류 후 | 🟡 선택 |
-| | `/ai/question` | POST | 2차 질문 생성 AI | 답변 입력 후 | 🟡 선택 |
-| | `/ai/combine` | POST | 답변 합치기 AI | 여러 답변 합칠 때 | 🟢 선택 |
-| | `/post/` | POST | 자서전 저장 | 답변 완료 후 저장 | 🔴 필수 |
-| | `/post/` | PATCH | 자서전 업데이트 | 답변 수정 시 | 🟡 선택 |
-| **자서전 보기 페이지** (미구현) |
-| | `/users/:uuid/posts` | GET | 자서전 전체 조회 | 페이지 진입 시 | 🟡 선택 |
-| **마이페이지** |
-| | `/users/:uuid?deleteType={number}` | DELETE | 회원탈퇴 | 탈퇴 버튼 클릭 | 🟢 선택 |
+| 로그인 페이지 | `/auth/signup` | POST | 회원 가입과 동시에 액세스·리프레시 토큰 발급 | 회원가입 완료 시 | 🔴 필수 |
+| 로그인 페이지 | `/auth/login` | POST | 로그인 및 토큰 발급 | 로그인 버튼 클릭 | 🔴 필수 |
+| 로그인 페이지 | `/auth/refresh-token` | POST | 리프레시 토큰으로 액세스 토큰 재발급 | 액세스 토큰 만료 시 | 🔴 필수 |
+| 홈 페이지 | `/users/me/toc` | GET | 맞춤 목차·진행률 목록 조회 | 홈 진입 즉시 | 🔴 필수 |
+| 홈 페이지 | `/users/me/toc-questions` | GET | 목차별 질문 트리 선로딩 | 초기 데이터 프리패치 | 🟡 선택 |
+| 자기소개 작성 | `/users/me/toc-questions` | GET | 전체 목차·질문 구조 로딩 | 페이지 진입 시 | 🔴 필수 |
+| 자기소개 작성 | `/life-legacy/toc/:tocId/questions` | GET | 선택 목차 질문 상세 조회 | 목차 선택 시 | 🔴 필수 |
+| 자기소개 작성 | `/users/me/intro` | POST | 사용자 자기소개 서문 저장 | 초기 입력 저장 시 | 🔴 필수 |
+| 자기소개 작성 | `/life-legacy/toc/:tocId/questions/:questionId/answers` | POST | 질문의 최종 답변 저장 | 답변 완료 후 | 🔴 필수 |
+| 자기소개 작성 | `/users/me/answers/:answerId` | PATCH | 저장된 답변 수정 | 답변 수정 시 | 🟡 선택 |
+| 자기소개 작성 | `/ai/question` | POST | 2차 질문 생성 AI | 1차 답변 입력 후 | 🟡 선택 |
+| 자기소개 작성 | `/ai/combine` | POST | 여러 답변 병합 | 답변 병합 시 | 🟢 선택 |
+| 자서전 보기 | `/users/me/toc-questions` | GET | 전체 자서전 구조 조회 | 페이지 진입 시 | 🟡 선택 |
+| 자서전 보기 | `/users/me/answers?tocId={id}&questionId={id}` | GET | 특정 질문 작성본 조회 | 항목 열람 시 | 🟡 선택 |
+| 마이페이지 | `/users/me` (body에 탈퇴 사유 포함) | DELETE | 회원 탈퇴 처리 | 탈퇴 버튼 확인 후 | 🟢 선택 |
 
 
 

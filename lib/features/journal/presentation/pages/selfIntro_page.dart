@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../journal/presentation/controllers/journal_controller.dart';
+import 'package:ai_life_legacy/features/journal/presentation/controllers/journal_controller.dart';
 
 class SelfIntroPage extends GetView<SelfIntroController>  {
   const SelfIntroPage({super.key});
@@ -36,22 +36,26 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                 children: [
                   const SizedBox(height: 20),
                   // 질문 카드
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Text(
-                      '언제 어디서 태어났나요? 부모님이나 가족들이\n당신의 유아기에 대해 어떤 이야기를 해주셨나요?',
-                      style: TextStyle(fontSize: 18, height: 1.5, color: Colors.black87),
-                    ),
-                  ),
+                  Obx(() => Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          controller.currentQuestionText,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            height: 1.5,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      )),
                   const SizedBox(height: 24),
                   // 다시 들려줘 버튼 (그대로)
                   OutlinedButton(
-                    onPressed: () { /* TODO: 다시 듣기 */ },
+                    onPressed: controller.replayCurrentQuestion,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF5B9FED),
                       side: const BorderSide(color: Color(0xFF5B9FED), width: 2),
@@ -63,7 +67,7 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                   const SizedBox(height: 24),
 
                   // 🔹 채팅 말풍선 렌더
-                  ...controller.messages.map((m) => _Bubble(text: m.text, isUser: m.isUser)).toList(),
+                  ...controller.messages.map((m) => _Bubble(text: m.text, isUser: m.isUser)),
 
                   const SizedBox(height: 80), // 하단 입력 영역과 겹치지 않게 여유
                 ],
@@ -98,23 +102,19 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                       SizedBox(width: 8),
                       // 입력 필드
                       Expanded(
-                        child: TextField(
-                          controller: controller.textController,
-                          decoration: InputDecoration(
-                            hintText: '답변을 입력하세요.',
-                            hintStyle: TextStyle(color: Colors.grey[400]),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          style: TextStyle(fontSize: 16),
-                          maxLines: 1,
-                          onSubmitted: (v) {
-                            if (v.trim().isEmpty) return;
-                            controller.addMessage(v);
-                            controller.saveAnswer(v);
-                            controller.clearText();
-                          },
-                        ),
+                        child: Obx(() => TextField(
+                              controller: controller.textController,
+                              enabled: !controller.loading.value,
+                              decoration: InputDecoration(
+                                hintText: '답변을 입력하세요.',
+                                hintStyle: TextStyle(color: Colors.grey[400]),
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                              style: const TextStyle(fontSize: 16),
+                              maxLines: 1,
+                              onSubmitted: (_) => controller.submitAnswer(),
+                            )),
                       ),
                       SizedBox(width: 8),
                       // 전송 버튼
@@ -123,17 +123,22 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                           color: Color(0xFF5B9FED),
                           shape: BoxShape.circle,
                         ),
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_upward, color: Colors.white),
-                          onPressed: () {
-                            final text = controller.textController.text;
-                            if (text.trim().isEmpty) return;
-                            controller.addMessage(text);
-                            controller.saveAnswer(text);
-                            controller.clearText();
-                          },
-
-                        ),
+                        child: Obx(() {
+                          final isProcessing = controller.loading.value;
+                          return IconButton(
+                            icon: isProcessing
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : const Icon(Icons.arrow_upward, color: Colors.white),
+                            onPressed: isProcessing ? null : () => controller.submitAnswer(),
+                          );
+                        }),
                       ),
                     ],
                   ),

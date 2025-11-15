@@ -1,8 +1,8 @@
 // 인생 유산 관련 Repository
 
-import 'post_api.dart';
-import '../../user/data/models/user.dto.dart';
-import '../../../app/core/models/response.dart';
+import 'package:ai_life_legacy/features/post/data/post_api.dart';
+import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
+import 'package:ai_life_legacy/app/core/models/response.dart';
 
 abstract class PostRepository {
   Future<SuccessResponse<List<TocQuestionDto>>> getTocQuestions(int tocId);

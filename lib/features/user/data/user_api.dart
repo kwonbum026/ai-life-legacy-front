@@ -1,10 +1,10 @@
 // 사용자 관련 API 호출
 
 import 'package:dio/dio.dart';
-import '../../../app/core/network/dio_client.dart';
-import '../../../app/core/network/api_endpoints.dart';
-import '../../../app/core/models/response.dart';
-import 'models/user.dto.dart';
+import 'package:ai_life_legacy/app/core/network/dio_client.dart';
+import 'package:ai_life_legacy/app/core/network/api_endpoints.dart';
+import 'package:ai_life_legacy/app/core/models/response.dart';
+import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
 
 class UserApi {
   final Dio _dio = DioClient.instance;

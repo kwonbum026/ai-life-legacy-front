@@ -1,9 +1,9 @@
 // 홈 화면(플레이스홀더).
-// arguments로 받은 tab 값을 출력하고, 데모 로그아웃 버튼 제공.
+// arguments로 받은 tab 값을 출력하고, 챕터 목록을 표시한다.
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../journal/presentation/controllers/journal_controller.dart';
+import 'package:ai_life_legacy/features/journal/presentation/controllers/journal_controller.dart';
 
 class HomePage extends GetView<JournalController> {
   const HomePage({super.key});
@@ -27,18 +27,76 @@ class HomePage extends GetView<JournalController> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Obx(() => ListView.builder(
-          itemCount: controller.chapters.length,
-          itemBuilder: (context, index) {
-            final chapter = controller.chapters[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: _buildChapterCard(chapter),
+        child: Obx(() {
+          if (controller.loading.value && controller.chapters.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.errorMessage.isNotEmpty &&
+              controller.chapters.isEmpty) {
+            return _buildErrorState(
+              controller.errorMessage.value,
+              onRetry: controller.loadUserContents,
             );
-          },
-        )),
+          }
+
+          if (controller.chapters.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          return ListView.builder(
+            itemCount: controller.chapters.length,
+            itemBuilder: (context, index) {
+              final chapter = controller.chapters[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: _buildChapterCard(chapter),
+              );
+            },
+          );
+        }),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildErrorState(String message, {required VoidCallback onRetry}) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, color: Colors.red[400], size: 42),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 15, color: Colors.black87),
+          ),
+          const SizedBox(height: 20),
+          OutlinedButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh),
+            label: const Text('다시 시도'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.menu_book_outlined, size: 48, color: Colors.black45),
+          SizedBox(height: 12),
+          Text(
+            '아직 준비된 목차가 없습니다.\n자기소개 작성을 시작해 주세요.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black54, fontSize: 15),
+          ),
+        ],
+      ),
     );
   }
 
@@ -93,7 +151,7 @@ class HomePage extends GetView<JournalController> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildProgressBar(chapter.progress),
+                _buildProgressBar(chapter),
               ],
             ),
           ),
@@ -102,8 +160,16 @@ class HomePage extends GetView<JournalController> {
     );
   }
 
-  Widget _buildProgressBar(double progress) {
+  Widget _buildProgressBar(ChapterModel chapter) {
+    final clamped = chapter.progress.clamp(0.0, 1.0);
+    final widthFactor = clamped.isNaN ? 0.0 : clamped.toDouble();
+    final progressPercent = (widthFactor * 100).round();
+    final questionLabel = chapter.totalQuestions == 0
+        ? '질문 준비 중'
+        : '답변 ${chapter.answeredQuestions}/${chapter.totalQuestions}개';
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -116,7 +182,7 @@ class HomePage extends GetView<JournalController> {
                 ),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
-                  widthFactor: progress,
+                  widthFactor: widthFactor,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
@@ -131,6 +197,27 @@ class HomePage extends GetView<JournalController> {
                     ),
                   ),
                 ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '$progressPercent% 완료',
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              questionLabel,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 12,
               ),
             ),
           ],
