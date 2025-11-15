@@ -2,9 +2,9 @@
 // 장점: 페이지마다 필요한 데이터/컨트롤러 생성 위치가 명확해짐.
 
 import 'package:get/get.dart';
-import '../data/auth_api.dart';
-import '../data/auth_repository.dart';
-import '../presentation/controllers/auth_controller.dart';
+import 'package:ai_life_legacy/features/auth/data/auth_api.dart';
+import 'package:ai_life_legacy/features/auth/data/auth_repository.dart';
+import 'package:ai_life_legacy/features/auth/presentation/controllers/auth_controller.dart';
 
 class AuthBinding extends Bindings {
   @override

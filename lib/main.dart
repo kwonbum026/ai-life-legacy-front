@@ -1,9 +1,9 @@
 // 앱의 진입점(엔트리). runApp을 호출해 Flutter 위젯 트리를 띄움.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'bootstrap.dart';
-import 'app/core/routes/app_pages.dart';
-import 'app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/bootstrap.dart';
+import 'package:ai_life_legacy/app/core/routes/app_pages.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
 /// 프로그램 시작점. 동기/비동기 초기화 후 앱을 실행.
 /// WidgetsFlutterBinding.ensureInitialized(): 플러터 엔진/바인딩 초기화.

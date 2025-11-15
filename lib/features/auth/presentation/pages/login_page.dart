@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/auth_controller.dart';
-import '../../../../app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
-class LoginPage extends GetView<AuthController> {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool isSignUpMode = false;
+  
+  AuthController get controller => Get.find<AuthController>();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -20,13 +36,34 @@ class LoginPage extends GetView<AuthController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 120),
+                const SizedBox(height: 80),
 
-                // 로그인 타이틀
-                const Center(
+                // 로그인/회원가입 탭 전환
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTabButton(
+                        '로그인',
+                        !isSignUpMode,
+                        () => setState(() => isSignUpMode = false),
+                      ),
+                      const SizedBox(width: 20),
+                      _buildTabButton(
+                        '회원가입',
+                        isSignUpMode,
+                        () => setState(() => isSignUpMode = true),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                Center(
                   child: Text(
-                    '로그인',
-                    style: TextStyle(
+                    isSignUpMode ? '회원가입' : '로그인',
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -36,7 +73,6 @@ class LoginPage extends GetView<AuthController> {
 
                 const SizedBox(height: 80),
 
-                // 이메일 라벨
                 const Text(
                   '이메일',
                   style: TextStyle(
@@ -45,10 +81,8 @@ class LoginPage extends GetView<AuthController> {
                     color: Colors.black87,
                   ),
                 ),
-
                 const SizedBox(height: 12),
 
-                // 이메일 입력 필드
                 TextField(
                   controller: emailController,
                   decoration: InputDecoration(
@@ -69,7 +103,8 @@ class LoginPage extends GetView<AuthController> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -81,7 +116,6 @@ class LoginPage extends GetView<AuthController> {
 
                 const SizedBox(height: 28),
 
-                // 비밀번호 라벨
                 const Text(
                   '비밀번호',
                   style: TextStyle(
@@ -90,10 +124,8 @@ class LoginPage extends GetView<AuthController> {
                     color: Colors.black87,
                   ),
                 ),
-
                 const SizedBox(height: 12),
 
-                // 비밀번호 입력 필드
                 TextField(
                   controller: passwordController,
                   obscureText: true,
@@ -115,7 +147,8 @@ class LoginPage extends GetView<AuthController> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -126,27 +159,55 @@ class LoginPage extends GetView<AuthController> {
 
                 const SizedBox(height: 40),
 
-                // 로그인 버튼
-                SizedBox(
+                // 로그인/회원가입 버튼
+                Obx(() => SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: Obx(() => ElevatedButton(
+                  child: ElevatedButton(
                     onPressed: controller.loading.value
                         ? null
                         : () async {
                             final email = emailController.text.trim();
                             final password = passwordController.text.trim();
                             if (email.isEmpty || password.isEmpty) {
-                              Get.snackbar('입력 필요', '이메일과 비밀번호를 입력하세요.');
+                              Get.snackbar(
+                                '입력 필요',
+                                '이메일과 비밀번호를 입력하세요.',
+                              );
                               return;
                             }
-                            final ok = await controller.login(email, password);
-                            if (ok) {
-                              Get.offAllNamed(Routes.home);
+
+                            if (isSignUpMode) {
+                              // 회원가입
+                              final ok = await controller.signUp(email, password);
+                              if (ok) {
+                                Get.snackbar(
+                                  '회원가입 성공',
+                                  '환영합니다!',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                                Get.offAllNamed(Routes.home);
+                              } else {
+                                Get.snackbar(
+                                  '회원가입 실패',
+                                  controller.errorMessage.value.isEmpty
+                                      ? '이메일 또는 비밀번호를 확인하세요.'
+                                      : controller.errorMessage.value,
+                                );
+                              }
                             } else {
-                              Get.snackbar('로그인 실패', controller.errorMessage.value.isEmpty
-                                  ? '이메일 또는 비밀번호를 확인하세요.'
-                                  : controller.errorMessage.value);
+                              // 로그인
+                              final ok = await controller.login(email, password);
+                              if (ok) {
+                                Get.offAllNamed(Routes.home);
+                              } else {
+                                Get.snackbar(
+                                  '로그인 실패',
+                                  controller.errorMessage.value.isEmpty
+                                      ? '이메일 또는 비밀번호를 확인하세요.'
+                                      : controller.errorMessage.value,
+                                );
+                              }
                             }
                           },
                     style: ElevatedButton.styleFrom(
@@ -162,21 +223,47 @@ class LoginPage extends GetView<AuthController> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : const Text(
-                            '로그인',
-                            style: TextStyle(
+                        : Text(
+                            isSignUpMode ? '회원가입' : '로그인',
+                            style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
-                  )),
-                ),
+                  ),
+                )),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabButton(String text, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF007AFF) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF007AFF) : Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.black87,
           ),
         ),
       ),

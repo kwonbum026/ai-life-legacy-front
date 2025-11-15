@@ -2,10 +2,10 @@
 // Repository를 주입 받아 세션 확인, 로그인 상태 보관 등 수행.
 
 import 'package:get/get.dart';
-import '../../data/auth_repository.dart';
-import '../../data/models/auth.dto.dart';
-import '../../../../app/core/utils/token_storage.dart';
-import '../../../../app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/features/auth/data/auth_repository.dart';
+import 'package:ai_life_legacy/features/auth/data/models/auth.dto.dart';
+import 'package:ai_life_legacy/app/core/utils/token_storage.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
 class AuthController extends GetxController {
   final AuthRepository repo;
@@ -91,7 +91,4 @@ class AuthController extends GetxController {
     Get.offAllNamed(Routes.main);
   }
 
-  // 데모용(플레이스홀더) - 나중에 제거 가능
-  void demoLogin() => isLoggedIn.value = true;
-  void demoLogout() => logout();
 }

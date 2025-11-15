@@ -5,8 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../../app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

@@ -2,10 +2,10 @@
 // 장점: 네트워킹 코드를 한군데 모아 테스트/교체 용이.
 
 import 'package:dio/dio.dart';
-import '../../../app/core/network/dio_client.dart';
-import '../../../app/core/network/api_endpoints.dart';
-import '../../../app/core/models/response.dart';
-import 'models/auth.dto.dart';
+import 'package:ai_life_legacy/app/core/network/dio_client.dart';
+import 'package:ai_life_legacy/app/core/network/api_endpoints.dart';
+import 'package:ai_life_legacy/app/core/models/response.dart';
+import 'package:ai_life_legacy/features/auth/data/models/auth.dto.dart';
 
 class AuthApi {
   // 전역으로 초기화된 Dio 사용(인터셉터/토큰 공통 적용)
