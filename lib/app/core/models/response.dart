@@ -17,10 +17,12 @@ class SuccessResponse<T> {
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
+    // AI API는 'result' 필드를 사용하고, 다른 API는 'data' 필드를 사용
+    final dataField = json['result'] ?? json['data'];
     return SuccessResponse<T>(
       status: json['status'] as int,
       message: json['message'] as String,
-      data: fromJsonT(json['data']),
+      data: fromJsonT(dataField),
     );
   }
 
@@ -49,10 +51,11 @@ class Success201Response<T> {
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
+    final dataField = json['result'] ?? json['data'];
     return Success201Response<T>(
       status: json['status'] as int,
       message: json['message'] as String,
-      data: fromJsonT(json['data']),
+      data: fromJsonT(dataField),
     );
   }
 

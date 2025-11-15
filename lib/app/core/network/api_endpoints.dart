@@ -26,4 +26,9 @@ class ApiEndpoints {
   // 인생 유산 API
   static String tocQuestions(int tocId) => '/life-legacy/toc/$tocId/questions';
   static String questionAnswer(int questionId) => '/life-legacy/questions/$questionId/answers';
+
+  // AI API
+  static const aiCase = '/ai/case';
+  static const aiQuestion = '/ai/question';
+  static const aiCombine = '/ai/combine';
 }

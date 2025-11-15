@@ -2,9 +2,9 @@
 // 장점: 공통 헤더/타임아웃/인터셉터를 한 곳에서 설정.
 
 import 'package:dio/dio.dart';
-import '../config/env.dart';
-import '../utils/token_storage.dart';
-import 'api_endpoints.dart';
+import 'package:ai_life_legacy/app/core/config/env.dart';
+import 'package:ai_life_legacy/app/core/utils/token_storage.dart';
+import 'package:ai_life_legacy/app/core/network/api_endpoints.dart';
 
 class DioClient {
   // 실제 HTTP 요청을 담당하는 객체.

@@ -5,6 +5,6 @@ class Env {
   /// 환경값 로드. 반환값 없음.
   /// 현재는 하드코딩이지만, 추후 --dart-define, dotenv 패키지, flavors로 대체 가능.
   static void load() {
-    apiBase = 'http://localhost:8080';
+    apiBase = 'https://ai-life-legacy-backend-nestjs.onrender.com';
   }
 }

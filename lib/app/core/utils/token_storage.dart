@@ -1,44 +1,60 @@
-// 토큰 저장 및 관리 유틸리티
-// TODO: 실제 앱에서는 flutter_secure_storage 또는 shared_preferences 사용 권장
+import 'package:shared_preferences/shared_preferences.dart';
 
+/// 토큰 저장/조회 유틸리티
 class TokenStorage {
+  static const _accessKey = 'access_token';
+  static const _refreshKey = 'refresh_token';
+
+  static SharedPreferences? _prefs;
   static String? _accessToken;
   static String? _refreshToken;
+
+  /// SharedPreferences 초기화 및 캐시 로딩
+  static Future<void> init() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    _accessToken = _prefs!.getString(_accessKey);
+    _refreshToken = _prefs!.getString(_refreshKey);
+  }
+
+  static Future<SharedPreferences> _ensurePrefs() async {
+    if (_prefs != null) return _prefs!;
+    _prefs = await SharedPreferences.getInstance();
+    return _prefs!;
+  }
 
   /// AccessToken 저장
   static Future<void> saveAccessToken(String token) async {
     _accessToken = token;
-    // TODO: 실제 저장소에 저장
-    // await secureStorage.write(key: 'access_token', value: token);
+    final prefs = await _ensurePrefs();
+    await prefs.setString(_accessKey, token);
   }
 
   /// RefreshToken 저장
   static Future<void> saveRefreshToken(String token) async {
     _refreshToken = token;
-    // TODO: 실제 저장소에 저장
-    // await secureStorage.write(key: 'refresh_token', value: token);
+    final prefs = await _ensurePrefs();
+    await prefs.setString(_refreshKey, token);
   }
 
   /// AccessToken 조회
   static String? getAccessToken() {
-    return _accessToken;
-    // TODO: 실제 저장소에서 읽기
-    // return await secureStorage.read(key: 'access_token');
+    if (_accessToken != null) return _accessToken;
+    return _prefs?.getString(_accessKey);
   }
 
   /// RefreshToken 조회
   static String? getRefreshToken() {
-    return _refreshToken;
-    // TODO: 실제 저장소에서 읽기
-    // return await secureStorage.read(key: 'refresh_token');
+    if (_refreshToken != null) return _refreshToken;
+    return _prefs?.getString(_refreshKey);
   }
 
   /// 모든 토큰 삭제 (로그아웃 시)
   static Future<void> clearAll() async {
     _accessToken = null;
     _refreshToken = null;
-    // TODO: 실제 저장소에서 삭제
-    // await secureStorage.deleteAll();
+    final prefs = await _ensurePrefs();
+    await prefs.remove(_accessKey);
+    await prefs.remove(_refreshKey);
   }
 
   /// 토큰 저장 (둘 다)
@@ -46,10 +62,9 @@ class TokenStorage {
     required String accessToken,
     required String refreshToken,
   }) async {
-    await saveAccessToken(accessToken);
-    await saveRefreshToken(refreshToken);
+    await Future.wait([
+      saveAccessToken(accessToken),
+      saveRefreshToken(refreshToken),
+    ]);
   }
 }
-
-
-
