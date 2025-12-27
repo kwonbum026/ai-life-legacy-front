@@ -5,13 +5,22 @@ import 'package:get/get.dart';
 import 'package:ai_life_legacy/features/auth/data/auth_api.dart';
 import 'package:ai_life_legacy/features/auth/data/auth_repository.dart';
 import 'package:ai_life_legacy/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ai_life_legacy/features/user/data/user_api.dart';
+import 'package:ai_life_legacy/features/user/data/user_repository.dart';
 
 class AuthBinding extends Bindings {
   @override
   void dependencies() {
-    // lazyPut: 실제로 필요해질 때 생성(지연 생성). 메모리 효율↑
-    Get.lazyPut(() => AuthApi());
-    Get.lazyPut<AuthRepository>(() => AuthRepositoryImpl(Get.find<AuthApi>()));
-    Get.lazyPut(() => AuthController(Get.find<AuthRepository>()));
+    // lazyPut: 실제로 필요해질 때 생성(지연 생성). fenix: true => 페이지 이동으로 삭제되어도 필요 시 재생성
+    Get.lazyPut(() => AuthApi(), fenix: true);
+    Get.lazyPut<AuthRepository>(() => AuthRepositoryImpl(Get.find<AuthApi>()),
+        fenix: true);
+    Get.lazyPut(() => UserApi(), fenix: true);
+    Get.lazyPut<UserRepository>(() => UserRepositoryImpl(Get.find<UserApi>()),
+        fenix: true);
+    Get.lazyPut(
+        () => AuthController(
+            Get.find<AuthRepository>(), Get.find<UserRepository>()),
+        fenix: true);
   }
 }

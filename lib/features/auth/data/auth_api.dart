@@ -30,15 +30,23 @@ class AuthApi {
   Future<SuccessResponse<JwtTokenResponseDto>> login(
     AuthCredentialsDto credentials,
   ) async {
-    final response = await _dio.post(
-      ApiEndpoints.login,
-      data: credentials.toJson(),
-    );
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.login,
+        data: credentials.toJson(),
+      );
 
-    return SuccessResponse<JwtTokenResponseDto>.fromJson(
-      response.data,
-      (json) => JwtTokenResponseDto.fromJson(json as Map<String, dynamic>),
-    );
+      return SuccessResponse<JwtTokenResponseDto>.fromJson(
+        response.data,
+        (json) => JwtTokenResponseDto.fromJson(json as Map<String, dynamic>),
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print('Login Error Status: ${e.response?.statusCode}');
+        print('Login Error Data: ${e.response?.data}');
+      }
+      rethrow;
+    }
   }
 
   /// 토큰 갱신

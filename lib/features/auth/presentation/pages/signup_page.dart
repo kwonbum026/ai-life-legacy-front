@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ai_life_legacy/features/auth/presentation/controllers/auth_controller.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  // Reusing AuthController as it already has signUp logic
   AuthController get controller => Get.find<AuthController>();
 
   @override
@@ -26,6 +27,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('회원가입'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -33,20 +40,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 120),
-
-                const Center(
-                  child: Text(
-                    '로그인',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 80),
+                const SizedBox(height: 40),
 
                 const Text(
                   '이메일',
@@ -134,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 40),
 
-                // 로그인 버튼
+                // 회원가입 버튼
                 Obx(() => SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -154,20 +148,25 @@ class _LoginPageState extends State<LoginPage> {
                                   return;
                                 }
 
-                                // 로그인
                                 final ok =
-                                    await controller.login(email, password);
+                                    await controller.signUp(email, password);
 
                                 if (!context.mounted) return;
 
                                 if (ok) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('회원가입 성공! 환영합니다.'),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
                                   // AuthController handles navigation
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
                                         controller.errorMessage.value.isEmpty
-                                            ? '이메일 또는 비밀번호를 확인하세요.'
+                                            ? '회원가입에 실패했습니다.'
                                             : controller.errorMessage.value,
                                       ),
                                       behavior: SnackBarBehavior.floating,
@@ -193,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               )
                             : const Text(
-                                '로그인',
+                                '회원가입',
                                 style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w600,
@@ -202,41 +201,6 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                       ),
                     )),
-
-                const SizedBox(height: 24),
-
-                // 회원가입 링크
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '아직 회원이 아니신가요? ',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: Routes.signup import needed if using Get.toNamed
-                          // or just import app_routes
-                          Get.toNamed(
-                              '/signup'); // Using string literal or import Routes to be safe
-                        },
-                        child: const Text(
-                          '회원가입 하기',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
