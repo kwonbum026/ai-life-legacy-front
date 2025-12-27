@@ -4,26 +4,31 @@
 class UserTocDto {
   final int id;
   final String title;
+  final double percent;
 
   UserTocDto({
     required this.id,
     required this.title,
+    required this.percent,
   });
 
   factory UserTocDto.fromJson(Map<String, dynamic> json) {
     final rawId = json['id'] ?? json['tocId'];
     final rawTitle = json['title'] ?? json['tocTitle'];
+    // API Spec: "percent": 30
+    final rawPercent = json['percent'] ?? json['percentage'] ?? 0.0;
 
     if (rawId == null) {
-      throw ArgumentError('UserTocDto: id/tocId is required. payload=$json');
+      throw ArgumentError('UserTocDto: id/tocId is required.');
     }
     if (rawTitle == null) {
-      throw ArgumentError('UserTocDto: title/tocTitle is required. payload=$json');
+      throw ArgumentError('UserTocDto: title/tocTitle is required.');
     }
 
     return UserTocDto(
-      id: rawId is int ? rawId : int.tryParse(rawId.toString()) ?? (throw ArgumentError('UserTocDto: invalid id "$rawId"')),
+      id: rawId is int ? rawId : int.tryParse(rawId.toString()) ?? 0,
       title: rawTitle.toString(),
+      percent: (rawPercent is num) ? rawPercent.toDouble() : 0.0,
     );
   }
 
@@ -31,6 +36,7 @@ class UserTocDto {
     return {
       'id': id,
       'title': title,
+      'percent': percent,
     };
   }
 }
@@ -82,8 +88,8 @@ class QuestionDto {
 
   factory QuestionDto.fromJson(Map<String, dynamic> json) {
     return QuestionDto(
-      id: json['id'] as int,
-      questionText: json['questionText'] as String,
+      id: json['id'] as int? ?? 0,
+      questionText: (json['questionText'] ?? json['question']) as String? ?? '',
     );
   }
 
@@ -106,9 +112,13 @@ class TocQuestionDto {
   });
 
   factory TocQuestionDto.fromJson(Map<String, dynamic> json) {
+    final q = json['question'] ?? json['questionText'];
+    if (q == null) {
+      print('[TocQuestionDto] Warning: Missing question text in json: $json');
+    }
     return TocQuestionDto(
-      id: json['id'] as int,
-      question: json['question'] as String,
+      id: json['id'] as int? ?? 0,
+      question: q?.toString() ?? '',
     );
   }
 
@@ -134,7 +144,7 @@ class UserAnswerDto {
 
   factory UserAnswerDto.fromJson(Map<String, dynamic> json) {
     return UserAnswerDto(
-      questionId: json['questionId'] as int,
+      questionId: json['questionId'] as int? ?? 0,
       answerText: json['answerText'] as String? ?? '',
       answerId: json['answerId'] as int? ?? json['id'] as int?,
     );
@@ -151,63 +161,110 @@ class UserAnswerDto {
 
 /// 자기소개 저장 요청 DTO
 class UserIntroDto {
-  final String userIntro;
+  final String userIntroText;
 
   UserIntroDto({
-    required this.userIntro,
+    required this.userIntroText,
   });
 
   factory UserIntroDto.fromJson(Map<String, dynamic> json) {
     return UserIntroDto(
-      userIntro: json['userIntro'] as String,
+      userIntroText: json['userIntroText'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'userIntro': userIntro,
+      'userIntroText': userIntroText,
     };
   }
 }
 
 /// 답변 저장 요청 DTO
 class AnswerSaveDto {
-  final String answerText;
+  final String answer;
 
   AnswerSaveDto({
-    required this.answerText,
+    required this.answer,
   });
 
   factory AnswerSaveDto.fromJson(Map<String, dynamic> json) {
     return AnswerSaveDto(
-      answerText: json['answerText'] as String,
+      answer: json['answer'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'answerText': answerText,
+      'answer': answer,
     };
   }
 }
 
 /// 답변 수정 요청 DTO
 class AnswerUpdateDto {
-  final String newAnswerText;
+  final int tocId;
+  final int questionId;
+  final String updateAnswer;
 
   AnswerUpdateDto({
-    required this.newAnswerText,
+    required this.tocId,
+    required this.questionId,
+    required this.updateAnswer,
   });
 
   factory AnswerUpdateDto.fromJson(Map<String, dynamic> json) {
     return AnswerUpdateDto(
-      newAnswerText: json['newAnswerText'] as String,
+      tocId: json['tocId'] as int,
+      questionId: json['questionId'] as int,
+      updateAnswer: json['updateAnswer'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'newAnswerText': newAnswerText,
+      'tocId': tocId,
+      'questionId': questionId,
+      'updateAnswer': updateAnswer,
+    };
+  }
+}
+
+/// 회원 탈퇴 요청 DTO
+class UserWithdrawalDto {
+  final String withdrawalReason;
+  final String withdrawalText;
+
+  UserWithdrawalDto({
+    required this.withdrawalReason,
+    required this.withdrawalText,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'withdrawalReason': withdrawalReason,
+      'withdrawalText': withdrawalText,
+    };
+  }
+}
+
+/// 유저 케이스 저장 요청 DTO
+class UserCaseSaveDto {
+  final String data;
+
+  UserCaseSaveDto({
+    required this.data,
+  });
+
+  factory UserCaseSaveDto.fromJson(Map<String, dynamic> json) {
+    return UserCaseSaveDto(
+      data: json['data'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data,
     };
   }
 }
