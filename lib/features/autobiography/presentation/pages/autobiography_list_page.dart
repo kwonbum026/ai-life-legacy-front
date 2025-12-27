@@ -1,20 +1,21 @@
 // lib/features/post/presentation/screens/autobiography_list_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:ai_life_legacy/features/post/data/presentation/autobiography_write_screen.dart';
+import 'package:ai_life_legacy/features/autobiography/presentation/pages/autobiography_write_page.dart';
 import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
 import 'package:ai_life_legacy/features/user/data/user_repository.dart';
+import 'package:ai_life_legacy/app/core/utils/toast_utils.dart';
 
-class AutobiographyListScreen extends StatefulWidget {
-  const AutobiographyListScreen({super.key});
+class AutobiographyListPage extends StatefulWidget {
+  const AutobiographyListPage({super.key});
 
   @override
-  State<AutobiographyListScreen> createState() =>
-      _AutobiographyListScreenState();
+  State<AutobiographyListPage> createState() => _AutobiographyListPageState();
 }
 
-class _AutobiographyListScreenState extends State<AutobiographyListScreen> {
+class _AutobiographyListPageState extends State<AutobiographyListPage> {
   final UserRepository _userRepository = Get.find<UserRepository>();
 
   int? _expandedIndex;
@@ -36,10 +37,17 @@ class _AutobiographyListScreenState extends State<AutobiographyListScreen> {
     });
 
     try {
-      final response = await _userRepository.getUserTocQuestions();
+      // 1. 목차 및 질문 목록 가져오기 (API 호출 한 번으로 해결)
+      final result = await _userRepository.getUserTocQuestions();
+      // Deduplicate result based on tocId
+      final uniqueIds = <int>{};
+      final loadedSections = result.data.where((section) {
+        return uniqueIds.add(section.tocId);
+      }).toList();
+
       if (!mounted) return;
       setState(() {
-        _sections = response.data;
+        _sections = loadedSections;
       });
     } catch (e) {
       if (!mounted) return;
@@ -160,16 +168,38 @@ class _AutobiographyListScreenState extends State<AutobiographyListScreen> {
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: InkWell(
                                     onTap: () async {
-                                      final result = await Get.to(
-                                        () => AutobiographyWriteScreen(
-                                          tocId: section.tocId,
-                                          tocTitle: section.tocTitle,
+                                      // 1. Check if answer exists
+                                      try {
+                                        await _userRepository.getUserAnswers(
                                           questionId: question.id,
-                                          question: question.questionText,
-                                        ),
-                                      );
-                                      if (result == true) {
-                                        _loadSections();
+                                          tocId: section.tocId,
+                                        );
+
+                                        // 2. If exists, navigate
+                                        final result = await Get.to(
+                                          () => AutobiographyWritePage(
+                                            tocId: section.tocId,
+                                            tocTitle: section.tocTitle,
+                                            questionId: question.id,
+                                            question: question.questionText,
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          _loadSections();
+                                        }
+                                      } on DioException catch (e) {
+                                        if (e.response?.statusCode == 404) {
+                                          ToastUtils.showInfoToast(
+                                              '아직 작성된 내용이 없습니다. 먼저 자서전을 작성해주세요.');
+                                        } else {
+                                          Get.snackbar(
+                                            '오류',
+                                            '확인 중 오류가 발생했습니다: ${e.message}',
+                                          );
+                                        }
+                                      } catch (e) {
+                                        Get.snackbar(
+                                            '오류', '알 수 없는 오류가 발생했습니다.');
                                       }
                                     },
                                     child: Row(

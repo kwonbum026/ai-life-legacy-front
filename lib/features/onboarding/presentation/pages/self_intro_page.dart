@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ai_life_legacy/features/journal/presentation/controllers/journal_controller.dart';
+import 'package:ai_life_legacy/features/onboarding/presentation/controllers/self_intro_controller.dart';
 
-class SelfIntroPage extends GetView<SelfIntroController>  {
+class SelfIntroPage extends GetView<SelfIntroController> {
   const SelfIntroPage({super.key});
 
   @override
@@ -14,10 +14,14 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            // "작성 다 안하고 뒤로가기 하면 home 페이지로"
+            // Incomplete status logic will be handled by HomeController's empty state check
+            Get.offAllNamed('/home');
+          },
         ),
         title: Text(
-          '탄생과 유아기 시절',
+          '자기소개',
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -58,16 +62,22 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                     onPressed: controller.replayCurrentQuestion,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF5B9FED),
-                      side: const BorderSide(color: Color(0xFF5B9FED), width: 2),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      side:
+                          const BorderSide(color: Color(0xFF5B9FED), width: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
                     ),
-                    child: const Text('다시 들려줘', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: const Text('다시 들려줘',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
                   const SizedBox(height: 24),
 
                   // 🔹 채팅 말풍선 렌더
-                  ...controller.messages.map((m) => _Bubble(text: m.text, isUser: m.isUser)),
+                  ...controller.messages
+                      .map((m) => _Bubble(text: m.text, isUser: m.isUser)),
 
                   const SizedBox(height: 80), // 하단 입력 영역과 겹치지 않게 여유
                 ],
@@ -109,7 +119,8 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                                 hintText: '답변을 입력하세요.',
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                                 border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                               ),
                               style: const TextStyle(fontSize: 16),
                               maxLines: 1,
@@ -132,11 +143,15 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
                                   )
-                                : const Icon(Icons.arrow_upward, color: Colors.white),
-                            onPressed: isProcessing ? null : () => controller.submitAnswer(),
+                                : const Icon(Icons.arrow_upward,
+                                    color: Colors.white),
+                            onPressed: isProcessing
+                                ? null
+                                : () => controller.submitAnswer(),
                           );
                         }),
                       ),
@@ -162,39 +177,40 @@ class SelfIntroPage extends GetView<SelfIntroController>  {
                         children: [
                           // 녹음 시간 표시
                           Obx(() => Text(
-                            controller.getFormattedTime(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                          )),
+                                controller.getFormattedTime(),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black54,
+                                ),
+                              )),
                           SizedBox(width: 24),
                           // 녹음 버튼
                           Obx(() => GestureDetector(
-                            onTap: () => controller.toggleRecording(),
-                            child: Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: controller.isRecording.value
-                                    ? Color(0xFFFF5252)
-                                    : Color(0xFFFF5252),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color(0xFFFF5252).withOpacity(0.3),
-                                    blurRadius: 12,
-                                    spreadRadius: 2,
+                                onTap: () => controller.toggleRecording(),
+                                child: Container(
+                                  width: 64,
+                                  height: 64,
+                                  decoration: BoxDecoration(
+                                    color: controller.isRecording.value
+                                        ? Color(0xFFFF5252)
+                                        : Color(0xFFFF5252),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            Color(0xFFFF5252).withOpacity(0.3),
+                                        blurRadius: 12,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.mic,
-                                color: Colors.white,
-                                size: 32,
-                              ),
-                            ),
-                          )),
+                                  child: Icon(
+                                    Icons.mic,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ),
+                              )),
                         ],
                       ),
                     ],
@@ -220,7 +236,8 @@ class _Bubble extends StatelessWidget {
     final bg = isUser ? const Color(0xFF5B9FED) : const Color(0xFFEDEDED);
     final fg = isUser ? Colors.white : Colors.black87;
     final align = isUser ? Alignment.centerRight : Alignment.centerLeft;
-    final margin = isUser ? const EdgeInsets.only(left: 60, bottom: 10)
+    final margin = isUser
+        ? const EdgeInsets.only(left: 60, bottom: 10)
         : const EdgeInsets.only(right: 60, bottom: 10);
 
     return Align(
@@ -232,7 +249,8 @@ class _Bubble extends StatelessWidget {
           color: bg,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Text(text, style: TextStyle(color: fg, fontSize: 16, height: 1.4)),
+        child:
+            Text(text, style: TextStyle(color: fg, fontSize: 16, height: 1.4)),
       ),
     );
   }

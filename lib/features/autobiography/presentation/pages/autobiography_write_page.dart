@@ -3,17 +3,17 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ai_life_legacy/features/post/data/post_repository.dart';
+import 'package:ai_life_legacy/features/autobiography/data/autobiography_repository.dart';
 import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
 import 'package:ai_life_legacy/features/user/data/user_repository.dart';
 
-class AutobiographyWriteScreen extends StatefulWidget {
+class AutobiographyWritePage extends StatefulWidget {
   final int tocId;
   final int questionId;
   final String question;
   final String tocTitle;
 
-  const AutobiographyWriteScreen({
+  const AutobiographyWritePage({
     super.key,
     required this.tocId,
     required this.questionId,
@@ -22,14 +22,13 @@ class AutobiographyWriteScreen extends StatefulWidget {
   });
 
   @override
-  State<AutobiographyWriteScreen> createState() =>
-      _AutobiographyWriteScreenState();
+  State<AutobiographyWritePage> createState() => _AutobiographyWritePageState();
 }
 
-class _AutobiographyWriteScreenState extends State<AutobiographyWriteScreen> {
+class _AutobiographyWritePageState extends State<AutobiographyWritePage> {
   late final TextEditingController _answerController;
   late final UserRepository _userRepository;
-  late final PostRepository _postRepository;
+  late final AutobiographyRepository _postRepository;
 
   bool _isSaving = false;
   bool _isLoading = true;
@@ -41,7 +40,7 @@ class _AutobiographyWriteScreenState extends State<AutobiographyWriteScreen> {
     super.initState();
     _answerController = TextEditingController();
     _userRepository = Get.find<UserRepository>();
-    _postRepository = Get.find<PostRepository>();
+    _postRepository = Get.find<AutobiographyRepository>();
     _fetchExistingAnswer();
   }
 
@@ -52,12 +51,18 @@ class _AutobiographyWriteScreenState extends State<AutobiographyWriteScreen> {
     });
 
     try {
-      final response = await _userRepository.getUserAnswer(widget.questionId);
-      final data = response.data;
-      _answerId = data.answerId;
-      _answerController.text = data.answerText;
+      final response = await _userRepository.getUserAnswers(
+          questionId: widget.questionId, tocId: widget.tocId);
+      final answer = response.data;
+
+      _answerId = answer.answerId;
+      _answerController.text = answer.answerText;
     } on DioException catch (dioError) {
-      if (dioError.response?.statusCode != 404) {
+      if (dioError.response?.statusCode == 404) {
+        // 답변이 없는 경우 -> 정상적인 신규 작성 상태
+        _answerId = null;
+        _answerController.text = '';
+      } else {
         _loadError = '답변을 불러오지 못했습니다. 다시 시도해주세요.';
       }
     } catch (e) {
@@ -82,14 +87,21 @@ class _AutobiographyWriteScreenState extends State<AutobiographyWriteScreen> {
 
     try {
       if (_answerId == null) {
+        // Create new answer via Life Legacy API
         await _postRepository.saveAnswer(
+          widget.tocId,
           widget.questionId,
-          AnswerSaveDto(answerText: text),
+          AnswerSaveDto(answer: text),
         );
       } else {
-        await _userRepository.updateUserAnswer(
+        // Update existing answer via User API
+        await _userRepository.updateAnswer(
           _answerId!,
-          AnswerUpdateDto(newAnswerText: text),
+          AnswerUpdateDto(
+            tocId: widget.tocId,
+            questionId: widget.questionId,
+            updateAnswer: text,
+          ),
         );
       }
 

@@ -1,11 +1,9 @@
-// 홈 화면(플레이스홀더).
-// arguments로 받은 tab 값을 출력하고, 챕터 목록을 표시한다.
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ai_life_legacy/features/journal/presentation/controllers/journal_controller.dart';
+import 'package:ai_life_legacy/features/home/presentation/controllers/home_controller.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
-class HomePage extends GetView<JournalController> {
+class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
 
   @override
@@ -24,6 +22,13 @@ class HomePage extends GetView<JournalController> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.black),
+            onPressed: () => Get.toNamed(Routes.myPage),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -32,16 +37,19 @@ class HomePage extends GetView<JournalController> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (controller.errorMessage.isNotEmpty &&
-              controller.chapters.isEmpty) {
-            return _buildErrorState(
-              controller.errorMessage.value,
-              onRetry: controller.loadUserContents,
-            );
-          }
-
+          // 에러가 있어도 챕터가 없으면(아직 생성 전) 그냥 "작성 안내(Empty State)"를 보여줌
+          // 사용자가 에러 메시지 대신 "작성하러 가기"를 보길 원함
           if (controller.chapters.isEmpty) {
             return _buildEmptyState();
+          }
+
+          // 챕터가 있는데 에러가 난 경우에만 에러 표시 (예: 갱신 실패)
+          if (controller.errorMessage.isNotEmpty) {
+            Get.rawSnackbar(
+              message: controller.errorMessage.value,
+              backgroundColor: Colors.redAccent.withOpacity(0.9),
+              snackPosition: SnackPosition.BOTTOM,
+            );
           }
 
           return ListView.builder(
@@ -60,40 +68,32 @@ class HomePage extends GetView<JournalController> {
     );
   }
 
-  Widget _buildErrorState(String message, {required VoidCallback onRetry}) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, color: Colors.red[400], size: 42),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 15, color: Colors.black87),
-          ),
-          const SizedBox(height: 20),
-          OutlinedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: const Text('다시 시도'),
-          ),
-        ],
-      ),
-    );
-  }
+  // _buildErrorState removed as it is no longer used
 
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(Icons.menu_book_outlined, size: 48, color: Colors.black45),
-          SizedBox(height: 12),
-          Text(
-            '아직 준비된 목차가 없습니다.\n자기소개 작성을 시작해 주세요.',
+        children: [
+          const Icon(Icons.edit_note, size: 48, color: Colors.blueAccent),
+          const SizedBox(height: 16),
+          const Text(
+            '아직 자기소개가 작성되지 않아\n목차가 보이지 않습니다.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black54, fontSize: 15),
+            style: TextStyle(color: Colors.black87, fontSize: 16, height: 1.5),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => Get.toNamed(Routes.selfIntro),
+            child: const Text(
+              '이어서 작성하러 가시겠습니까?',
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
           ),
         ],
       ),
@@ -240,38 +240,38 @@ class HomePage extends GetView<JournalController> {
         ],
       ),
       child: Obx(() => BottomNavigationBar(
-        currentIndex: controller.selectedTabIndex.value,
-        onTap: controller.changeTab,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF4A9EFF),
-        unselectedItemColor: Colors.grey[600],
-        selectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-        ),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined, size: 24),
-            activeIcon: Icon(Icons.home, size: 24),
-            label: '홈',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.edit_outlined, size: 24),
-            activeIcon: Icon(Icons.edit, size: 24),
-            label: '자기소개 작성',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.folder_outlined, size: 24),
-            activeIcon: Icon(Icons.folder, size: 24),
-            label: '자서전 확인',
-          ),
-        ],
-      )),
+            currentIndex: controller.selectedTabIndex.value,
+            onTap: controller.changeTab,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF4A9EFF),
+            unselectedItemColor: Colors.grey[600],
+            selectedLabelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, size: 24),
+                activeIcon: Icon(Icons.home, size: 24),
+                label: '홈',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.edit_outlined, size: 24),
+                activeIcon: Icon(Icons.edit, size: 24),
+                label: '자기소개 작성',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.folder_outlined, size: 24),
+                activeIcon: Icon(Icons.folder, size: 24),
+                label: '자서전 확인',
+              ),
+            ],
+          )),
     );
   }
 }
