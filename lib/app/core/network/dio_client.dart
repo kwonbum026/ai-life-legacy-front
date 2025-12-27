@@ -26,7 +26,17 @@ class DioClient {
       ),
     );
 
-    // 인터셉터 추가: 토큰 자동 주입 및 갱신
+    // 인터셉터 추가: 로깅 및 토큰 주입
+    _dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseHeader: false,
+        responseBody: true,
+        error: true,
+      ),
+    );
+
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -39,11 +49,16 @@ class DioClient {
         },
         onError: (error, handler) async {
           // 401 에러 시 토큰 갱신 시도
-          if (error.response?.statusCode == 401) {
+          // 단, 로그인 요청 자체가 401인 경우는 제외 (비밀번호 틀림 등)
+          final isLoginRequest =
+              error.requestOptions.path.contains(ApiEndpoints.login);
+
+          if (error.response?.statusCode == 401 && !isLoginRequest) {
             try {
               await _refreshTokenAndRetry(error.requestOptions, handler);
             } catch (e) {
               // 토큰 갱신 실패 시 로그아웃 처리
+              print('[DioClient] Token refresh failed: $e');
               await TokenStorage.clearAll();
               return handler.reject(error);
             }
@@ -73,8 +88,10 @@ class DioClient {
       );
 
       final result = response.data as Map<String, dynamic>;
-      final tokenData = result['data'] as Map<String, dynamic>;
-      
+      // AI API는 'result', 그 외는 'data' 필드 혼용 가능성 처리
+      final tokenData =
+          (result['result'] ?? result['data']) as Map<String, dynamic>;
+
       final newAccessToken = tokenData['accessToken'] as String;
       final newRefreshToken = tokenData['refreshToken'] as String;
 

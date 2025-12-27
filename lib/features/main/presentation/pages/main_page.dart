@@ -21,7 +21,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _fadeCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900));
     _fade = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeInOut);
     _fadeCtrl.forward();
   }
@@ -36,13 +37,15 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   /// - AuthController의 isLoggedIn 값을 읽어 /home 또는 /login으로 이동.
   void _goWrite(AuthController auth) {
     final loggedIn = auth.isLoggedIn.value;
-    Get.toNamed(loggedIn ? Routes.home : Routes.login, arguments: {'tab': 'write'});
+    Get.toNamed(loggedIn ? Routes.home : Routes.login,
+        arguments: {'tab': 'write'});
   }
 
   /// "자서전 보기" 버튼 콜백. 위와 동일한 분기.
   void _goView(AuthController auth) {
     final loggedIn = auth.isLoggedIn.value;
-    Get.toNamed(loggedIn ? Routes.home : Routes.login, arguments: {'tab': 'view'});
+    Get.toNamed(loggedIn ? Routes.home : Routes.login,
+        arguments: {'tab': 'view'});
   }
 
   @override
@@ -92,7 +95,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
                 // 서브 타이틀 - 두 번째 줄
                 const Text(
-                  '맞춤형 사서전 제작 서비스',
+                  '맞춤형 자서전 제작 서비스',
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF666666),
@@ -163,11 +166,14 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 ),
                 const Spacer(),
                 Obx(() => Text(
-                  auth.loading.value
-                      ? '세션 확인 중...'
-                      : (auth.isLoggedIn.value ? '로그인 상태: ON' : '로그인 상태: OFF'),
-                  style: theme.textTheme.labelMedium?.copyWith(color: Colors.black45),
-                )),
+                      auth.loading.value
+                          ? '세션 확인 중...'
+                          : (auth.isLoggedIn.value
+                              ? '로그인 상태: ON'
+                              : '로그인 상태: OFF'),
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: Colors.black45),
+                    )),
               ],
             ),
           ),

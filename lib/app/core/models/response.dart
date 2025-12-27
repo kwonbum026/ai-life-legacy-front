@@ -1,6 +1,4 @@
 // 공통 API 응답 모델
-// 모든 API 응답은 이 구조를 따릅니다.
-
 /// 공통 성공 응답 (200 OK)
 class SuccessResponse<T> {
   final int status;
@@ -13,14 +11,17 @@ class SuccessResponse<T> {
     required this.data,
   });
 
+  // 1. json: 서버가 준 날것의 데이터
+  // 2. fromJsonT: 내용물(T)을 어떻게 포장 풀지 알려주는 함수
   factory SuccessResponse.fromJson(
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
     // AI API는 'result' 필드를 사용하고, 다른 API는 'data' 필드를 사용
     final dataField = json['result'] ?? json['data'];
+
     return SuccessResponse<T>(
-      status: json['status'] as int,
+      status: (json['status'] ?? json['statusCode']) as int,
       message: json['message'] as String,
       data: fromJsonT(dataField),
     );
@@ -53,7 +54,7 @@ class Success201Response<T> {
   ) {
     final dataField = json['result'] ?? json['data'];
     return Success201Response<T>(
-      status: json['status'] as int,
+      status: (json['status'] ?? json['statusCode']) as int,
       message: json['message'] as String,
       data: fromJsonT(dataField),
     );
@@ -82,7 +83,7 @@ class Success204Response {
 
   factory Success204Response.fromJson(Map<String, dynamic> json) {
     return Success204Response(
-      status: json['status'] as int,
+      status: (json['status'] ?? json['statusCode']) as int,
       message: json['message'] as String,
       data: json['data'],
     );
@@ -111,7 +112,7 @@ class ErrorResponse {
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) {
     return ErrorResponse(
-      status: json['status'] as int,
+      status: (json['status'] ?? json['statusCode']) as int,
       message: json['message'] as String,
       data: json['data'],
     );
@@ -125,6 +126,3 @@ class ErrorResponse {
     };
   }
 }
-
-
-

@@ -6,29 +6,27 @@ class ApiEndpoints {
   // 루트 API
   static const healthCheck = '/';
 
-  // 인증 API
+  // Auth (인증)
   static const signUp = '/auth/signup';
   static const login = '/auth/login';
-  static const refreshToken = '/auth/refresh';
+  static const refreshToken = '/auth/refresh-token';
 
-  // 사용자 API
-  static const userIntro = '/users/me/intro';
-  static const userToc = '/users/me/toc';
-  static const userTocQuestions = '/users/me/toc-questions';
-  static String userAnswers({int? questionId}) {
-    if (questionId != null) {
-      return '/users/me/answers?questionId=$questionId';
-    }
-    return '/users/me/answers';
-  }
-  static String userAnswerUpdate(int answerId) => '/users/me/answers/$answerId';
+  // User (유저)
+  static const userIntro = '/users/me/intro'; // POST
+  static const userToc = '/users/me/toc'; // GET
+  static const userTocQuestions = '/users/me/toc-questions'; // GET
+  static const userAnswers = '/users/me/answers'; // GET
+  static String userAnswerUpdate(int answerId) =>
+      '/users/me/answers/$answerId'; // PATCH
+  static const deleteUser = '/users/me'; // DELETE
 
-  // 인생 유산 API
-  static String tocQuestions(int tocId) => '/life-legacy/toc/$tocId/questions';
-  static String questionAnswer(int questionId) => '/life-legacy/questions/$questionId/answers';
+  // Life Legacy (자서전)
+  static String lifeLegacyQuestions(int tocId) =>
+      '/life-legacy/toc/$tocId/questions'; // GET
+  static String lifeLegacyAnswer(int tocId, int questionId) =>
+      '/life-legacy/toc/$tocId/questions/$questionId/answers'; // POST
 
-  // AI API
-  static const aiCase = '/ai/case';
-  static const aiQuestion = '/ai/question';
-  static const aiCombine = '/ai/combine';
+  // AI (인공지능)
+  static const aiQuestion = '/ai/question'; // POST
+  static const aiCombine = '/ai/combine'; // POST
 }
