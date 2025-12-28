@@ -1,4 +1,3 @@
-// import 'package:flutter/material.dart'; // Unused
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
@@ -6,12 +5,13 @@ import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 import 'package:ai_life_legacy/features/user/data/user_repository.dart';
 import 'package:ai_life_legacy/app/core/utils/toast_utils.dart';
 
-// Home Controller
+/// Home Feature의 비즈니스 로직을 제어합니다.
+/// 사용자 목차(TOC) 로드, 탭 네비게이션, 챕터 클릭 이벤트 등을 처리합니다.
 class HomeController extends GetxController {
   final UserRepository userRepo;
   HomeController(this.userRepo);
 
-  // reactive state
+  // Reactive State: UI 업데이트를 위한 상태 변수
   final RxList<ChapterModel> chapters = <ChapterModel>[].obs;
   final RxInt selectedTabIndex = 0.obs;
   final RxBool loading = false.obs;
@@ -23,7 +23,7 @@ class HomeController extends GetxController {
     loadUserContents();
   }
 
-  /// 사용자 목차 불러오기
+  /// 사용자 목차(TOC) 목록을 서버로부터 불러옵니다.
   Future<void> loadUserContents() async {
     loading.value = true;
     errorMessage.value = '';
@@ -79,20 +79,20 @@ class HomeController extends GetxController {
     return data.toString();
   }
 
-  // _calculateProgress removed as logic integrated above
+  // _calculateProgress 관련 로직은 loadUserContents 내부에 통합됨
 
-  // 액션
+  /// 챕터 카드 클릭 시 이벤트 핸들러
   void onChapterTap(ChapterModel chapter) {
     print("챕터 ${chapter.id} 클릭됨: ${chapter.title}");
-    // SelfIntroPage로 이동하면서 tocId 전달
+    // 클릭한 챕터 ID를 전달하며 자기소개(Onboarding) 페이지로 이동
+    // 복귀 시 목차 목록 새로고침
     Get.toNamed(Routes.selfIntro, arguments: {'tocId': chapter.id})
         ?.then((_) => loadUserContents());
   }
 
-  // 하단 버튼 변경
+  /// 하단 탭 바 선택 변경 핸들러
   void changeTab(int index) {
-    // 탭 변경 UI 반영하지 않음 (이 페이지는 Home이고, 탭은 단순 버튼 역할)
-    // selectedTabIndex.value = index;
+    // 탭 인덱스에 따른 단순 기능 실행 (페이지 이동 X, 기능 수행 O)
 
     switch (index) {
       case 0:

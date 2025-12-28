@@ -37,13 +37,13 @@ class HomePage extends GetView<HomeController> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // 에러가 있어도 챕터가 없으면(아직 생성 전) 그냥 "작성 안내(Empty State)"를 보여줌
-          // 사용자가 에러 메시지 대신 "작성하러 가기"를 보길 원함
+          // 목차 데이터가 없을 경우 (Case 미생성 상태)
+          // 에러가 있더라도 사용자에게는 "작성 안내" Empty State를 우선 노출하여 경험 유도
           if (controller.chapters.isEmpty) {
             return _buildEmptyState();
           }
 
-          // 챕터가 있는데 에러가 난 경우에만 에러 표시 (예: 갱신 실패)
+          // 이미 목차가 있는 상태에서 갱신 실패 등의 에러 발생 시에만 스낵바 노출
           if (controller.errorMessage.isNotEmpty) {
             Get.rawSnackbar(
               message: controller.errorMessage.value,
@@ -67,8 +67,6 @@ class HomePage extends GetView<HomeController> {
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
-
-  // _buildErrorState removed as it is no longer used
 
   Widget _buildEmptyState() {
     return Center(

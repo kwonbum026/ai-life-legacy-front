@@ -219,10 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // TODO: Routes.signup import needed if using Get.toNamed
-                          // or just import app_routes
-                          Get.toNamed(
-                              '/signup'); // Using string literal or import Routes to be safe
+                          Get.toNamed('/signup');
                         },
                         child: const Text(
                           '회원가입 하기',

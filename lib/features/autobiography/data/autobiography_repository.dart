@@ -1,4 +1,5 @@
-// 인생 유산 관련 Repository
+/// 자서전(In-Depth Questions) 데이터 관리 Repository
+/// AutobiographyApi를 통해 질문 목록을 가져오고 답변을 저장합니다.
 
 import 'package:ai_life_legacy/features/autobiography/data/autobiography_api.dart';
 import 'package:ai_life_legacy/app/core/models/response.dart';

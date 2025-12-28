@@ -9,13 +9,13 @@ import 'package:ai_life_legacy/features/autobiography/data/autobiography_reposit
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    // UserRepo가 필요함
+    // UserRepo: 사용자 정보 및 목차 조회 관련 의존성 주입
     Get.lazyPut(() => UserApi(), fenix: true);
     Get.lazyPut<UserRepository>(() => UserRepositoryImpl(Get.find<UserApi>()),
         fenix: true);
     Get.lazyPut(() => HomeController(Get.find<UserRepository>()), fenix: true);
 
-    // AutobiographyRepo added
+    // AutobiographyRepo: 자서전 관련 데이터 관리 의존성 주입
     Get.lazyPut(() => AutobiographyApi(), fenix: true);
     Get.lazyPut<AutobiographyRepository>(
         () => AutobiographyRepositoryImpl(Get.find<AutobiographyApi>()),

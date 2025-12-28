@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 토큰 저장/조회 유틸리티
+/// 로컬 스토리지 기반 토큰 관리 클래스 (SharedPreferences 사용)
 class TokenStorage {
   static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';
@@ -12,7 +12,7 @@ class TokenStorage {
   static String? _refreshToken;
   static String? _uuid;
 
-  /// SharedPreferences 초기화 및 캐시 로딩
+  /// SharedPreferences 인스턴스를 초기화하고 캐시된 토큰을 로드합니다.
   static Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
     _accessToken = _prefs!.getString(_accessKey);
@@ -58,7 +58,7 @@ class TokenStorage {
     return _prefs?.getString(_refreshKey);
   }
 
-  /// 모든 토큰 삭제 (로그아웃 시)
+  /// 저장된 모든 토큰 정보를 삭제합니다 (로그아웃 시 호출).
   static Future<void> clearAll() async {
     _accessToken = null;
     _refreshToken = null;
@@ -69,7 +69,8 @@ class TokenStorage {
     await prefs.remove(_uuidKey);
   }
 
-  /// 토큰 저장 (둘 다)
+  /// Access Token과 Refresh Token을 동시에 저장합니다.
+  /// 토큰에서 UUID를 추출하여 별도 저장하는 로직이 포함되어 있습니다.
   static Future<void> saveTokens({
     required String accessToken,
     required String refreshToken,
@@ -98,7 +99,7 @@ class TokenStorage {
         }
       }
     } catch (e) {
-      // 디코딩 실패 시 무시 (로그 로그)
+      // 토큰 디코딩 실패 시, 로그만 출력하고 흐름은 유지.
       print('Token decoding failed: $e');
     }
 

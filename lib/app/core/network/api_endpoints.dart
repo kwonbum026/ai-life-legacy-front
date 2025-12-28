@@ -1,7 +1,5 @@
-// 서버 엔드포인트 상수 모음.
-// 하드코딩 문자열을 한곳에서 관리해 오타/경로 변경 리스크 감소.
+/// API 엔드포인트 URL 상수 관리 클래스
 
-/// API 엔드포인트 상수
 class ApiEndpoints {
   // 루트 API
   static const healthCheck = '/';

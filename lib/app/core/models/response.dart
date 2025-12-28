@@ -1,4 +1,4 @@
-// 공통 API 응답 모델
+/// 공통 API 응답 래퍼 클래스 정의
 /// 공통 성공 응답 (200 OK)
 class SuccessResponse<T> {
   final int status;
@@ -11,13 +11,12 @@ class SuccessResponse<T> {
     required this.data,
   });
 
-  // 1. json: 서버가 준 날것의 데이터
-  // 2. fromJsonT: 내용물(T)을 어떻게 포장 풀지 알려주는 함수
+  /// [json]은 서버 응답 원본, [fromJsonT]는 제네릭 타입 T의 생성자입니다.
   factory SuccessResponse.fromJson(
     Map<String, dynamic> json,
     T Function(dynamic) fromJsonT,
   ) {
-    // AI API는 'result' 필드를 사용하고, 다른 API는 'data' 필드를 사용
+    // AI 서비스와 일반 서비스의 응답 필드 불일치 해결 ('result' vs 'data')
     final dataField = json['result'] ?? json['data'];
 
     return SuccessResponse<T>(
@@ -69,7 +68,7 @@ class Success201Response<T> {
   }
 }
 
-/// 204 No Content 응답 (data가 null인 경우)
+/// 204 No Content 응답 (데이터가 없는 성공 응답)
 class Success204Response {
   final int status;
   final String message;

@@ -1,6 +1,7 @@
 // 사용자 관련 DTO 모델
 
-/// 유저 목차 응답 DTO
+/// 사용자 목차(TOC) 정보를 담는 DTO
+/// - API 응답의 'percent' 필드는 'percentage'로도 매핑될 수 있습니다.
 class UserTocDto {
   final int id;
   final String title;
@@ -15,7 +16,7 @@ class UserTocDto {
   factory UserTocDto.fromJson(Map<String, dynamic> json) {
     final rawId = json['id'] ?? json['tocId'];
     final rawTitle = json['title'] ?? json['tocTitle'];
-    // API Spec: "percent": 30
+    // percent 또는 percentage 필드 지원
     final rawPercent = json['percent'] ?? json['percentage'] ?? 0.0;
 
     if (rawId == null) {
@@ -41,7 +42,7 @@ class UserTocDto {
   }
 }
 
-/// 목차와 질문 목록 응답 DTO
+/// 목차 및 하위 질문 목록을 포함하는 복합 DTO
 class UserTocQuestionDto {
   final int tocId;
   final String tocTitle;
@@ -101,7 +102,7 @@ class QuestionDto {
   }
 }
 
-/// 목차별 질문 조회 응답 DTO (life-legacy API)
+/// 목차별 질문 조회 응답 DTO (Life Legacy API)
 class TocQuestionDto {
   final int id;
   final String question;

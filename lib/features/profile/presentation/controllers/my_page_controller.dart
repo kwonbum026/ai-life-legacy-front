@@ -12,25 +12,27 @@ class MyPageController extends GetxController {
 
   final RxBool isLoading = false.obs;
 
-  /// 로그아웃
+  /// 로그아웃 처리
+  /// AuthController의 로그아웃 로직을 호출하여 로그인 화면으로 이동합니다.
   Future<void> logout() async {
     await _authController.logout();
     // AuthController.logout handles navigation to Login
   }
 
-  /// 회원 탈퇴
+  /// 회원 탈퇴 처리
+  /// - API 호출 및 로컬 데이터 정리(로그아웃)
+  /// - 완료 시 안내 메시지 표시
   Future<void> withdrawAccount() async {
     isLoading.value = true;
     try {
-      // 1. API 호출 (회원 탈퇴)
-      // DTO may be empty if no specific reason is required, but we pass empty string for now
+      // 1. API 호출 (회원 탈퇴 요청)
       final dto = UserWithdrawalDto(
         withdrawalReason: "USER_REQUEST",
         withdrawalText: "사용자 요청에 의한 탈퇴",
       );
       await _userRepo.deleteUser(dto);
 
-      // 2. 로그아웃 처리 (토큰 삭제 등)
+      // 2. 로그아웃 처리 (토큰 삭제 및 상태 초기화)
       await _authController.logout();
 
       // 3. 메시지 표시

@@ -37,9 +37,10 @@ class _AutobiographyListPageState extends State<AutobiographyListPage> {
     });
 
     try {
-      // 1. 목차 및 질문 목록 가져오기 (API 호출 한 번으로 해결)
+      // 1. 목차 및 질문 목록 조회
+      // UserRepo를 통해 맞춤형 질문 리스트를 한 번에 가져옵니다.
       final result = await _userRepository.getUserTocQuestions();
-      // Deduplicate result based on tocId
+      // tocId 기준으로 중복 제거 (Backend 데이터 정합성 보장 차원)
       final uniqueIds = <int>{};
       final loadedSections = result.data.where((section) {
         return uniqueIds.add(section.tocId);
@@ -168,14 +169,14 @@ class _AutobiographyListPageState extends State<AutobiographyListPage> {
                                   padding: const EdgeInsets.only(bottom: 12),
                                   child: InkWell(
                                     onTap: () async {
-                                      // 1. Check if answer exists
+                                      // 1. 기존 답변 존재 여부 확인 (답변이 있으면 수정 화면으로 이동하기 위함)
                                       try {
                                         await _userRepository.getUserAnswers(
                                           questionId: question.id,
                                           tocId: section.tocId,
                                         );
 
-                                        // 2. If exists, navigate
+                                        // 2. 답변이 존재하면 조회된 데이터와 함께 이동 (작성 페이지 재활용)
                                         final result = await Get.to(
                                           () => AutobiographyWritePage(
                                             tocId: section.tocId,

@@ -13,7 +13,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Reusing AuthController as it already has signUp logic
+  // SignUp 로직은 AuthController를 재사용
   AuthController get controller => Get.find<AuthController>();
 
   @override
@@ -160,7 +160,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
-                                  // AuthController handles navigation
+                                  // Navigation logic handled by AuthController
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

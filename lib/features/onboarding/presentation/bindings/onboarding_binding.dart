@@ -10,12 +10,12 @@ import 'package:ai_life_legacy/app/core/ai/ai_repository.dart';
 class OnboardingBinding extends Bindings {
   @override
   void dependencies() {
-    // Data sources
+    // Data Sources: API Provider 의존성 주입
     Get.lazyPut(() => UserApi(), fenix: true);
     Get.lazyPut(() => AutobiographyApi(), fenix: true);
     Get.lazyPut(() => AiApi(), fenix: true);
 
-    // Repositories
+    // Repositories: 데이터 계층 의존성 주입
     Get.lazyPut<UserRepository>(() => UserRepositoryImpl(Get.find<UserApi>()),
         fenix: true);
     Get.lazyPut<AutobiographyRepository>(
@@ -24,7 +24,7 @@ class OnboardingBinding extends Bindings {
     Get.lazyPut<AiRepository>(() => AiRepositoryImpl(Get.find<AiApi>()),
         fenix: true);
 
-    // Controller
+    // Controllers: 비즈니스 로직 제어 컨트롤러 주입
     Get.lazyPut<SelfIntroController>(
       () => SelfIntroController(
         Get.find<UserRepository>(),

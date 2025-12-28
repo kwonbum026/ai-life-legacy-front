@@ -1,5 +1,5 @@
-// Auth 관련 "원격 API 호출"만 담당하는 레이어.
-// 장점: 네트워킹 코드를 한군데 모아 테스트/교체 용이.
+/// Auth 관련 원격 API 호출을 담당하는 Data Source 레이어입니다.
+/// 네트워킹 코드를 분리하여 테스트와 유지보수를 용이하게 합니다.
 
 import 'package:dio/dio.dart';
 import 'package:ai_life_legacy/app/core/network/dio_client.dart';
@@ -8,7 +8,7 @@ import 'package:ai_life_legacy/app/core/models/response.dart';
 import 'package:ai_life_legacy/features/auth/data/models/auth.dto.dart';
 
 class AuthApi {
-  // 전역으로 초기화된 Dio 사용(인터셉터/토큰 공통 적용)
+  // 전역 Dio 인스턴스 사용 (인터셉터 및 토큰 설정 공유)
   final Dio _dio = DioClient.instance;
 
   /// 회원가입
@@ -72,8 +72,8 @@ class AuthApi {
     // final res = await _dio.get(ApiEndpoints.authSession);
     // return res.statusCode == 200 && res.data['loggedIn'] == true;
 
-    // 현재는 더미 딜레이 후 항상 로그아웃 처리(false).
-    await Future.delayed(const Duration(milliseconds: 200)); // 더미 딜레이
-    return false; // ver1 시작: 항상 로그아웃 상태
+    // 현재는 더미 딜레이 후 항상 false(비로그인) 반환
+    await Future.delayed(const Duration(milliseconds: 200));
+    return false;
   }
 }

@@ -1,4 +1,5 @@
-// 사용자 관련 API 호출
+/// 사용자(User) 관련 API 호출을 담당하는 클래스
+/// - 자기소개 저장, 목차 조회, 답변 조회/수정, 회원탈퇴 등
 
 import 'package:dio/dio.dart';
 import 'package:ai_life_legacy/app/core/network/dio_client.dart';
@@ -9,7 +10,7 @@ import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
 class UserApi {
   final Dio _dio = DioClient.instance;
 
-  /// 유저 자기소개 저장 (User Case 반환)
+  /// 유저 자기소개 저장 (User Case 생성을 위해 백엔드로 전송)
   Future<SuccessResponse<void>> saveSelfIntro(UserIntroDto dto) async {
     final response = await _dio.post(
       ApiEndpoints.userIntro,
@@ -21,7 +22,7 @@ class UserApi {
     );
   }
 
-  /// 유저 맞춤형 목차 조회
+  /// 유저 맞춤형 목차(TOC) 목록 조회
   Future<SuccessResponse<List<UserTocDto>>> getUserToc() async {
     final response = await _dio.get(ApiEndpoints.userToc);
     return SuccessResponse<List<UserTocDto>>.fromJson(
@@ -32,7 +33,7 @@ class UserApi {
     );
   }
 
-  /// 유저 맞춤형 목차 및 질문 조회
+  /// 유저 맞춤형 목차 및 하위 질문 전체 조회
   Future<SuccessResponse<List<UserTocQuestionDto>>>
       getUserTocQuestions() async {
     final response = await _dio.get(ApiEndpoints.userTocQuestions);
@@ -45,7 +46,7 @@ class UserApi {
     );
   }
 
-  /// 유저 작성 답변 조회
+  /// 사용자가 작성한 답변 조회 (질문 ID 또는 목차 ID 기준)
   Future<SuccessResponse<UserAnswerDto>> getUserAnswers({
     int? questionId,
     int? tocId,
@@ -63,7 +64,7 @@ class UserApi {
     );
   }
 
-  /// 답변 수정 (자서전 업데이트)
+  /// 기존 답변 수정 (자서전 업데이트)
   Future<SuccessResponse<void>> updateAnswer(
     int answerId,
     AnswerUpdateDto dto,
@@ -80,7 +81,7 @@ class UserApi {
     );
   }
 
-  /// 회원탈퇴
+  /// 회원 탈퇴 요청
   Future<SuccessResponse<void>> deleteUser(UserWithdrawalDto dto) async {
     final response = await _dio.delete(
       ApiEndpoints.deleteUser,

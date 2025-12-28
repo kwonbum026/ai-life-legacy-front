@@ -9,7 +9,9 @@ import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';
 import 'package:ai_life_legacy/features/user/data/user_repository.dart';
 import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
-// 자기소개 작성
+/// 자기소개(Onboarding) 및 질문 답변(Life Legacy) 기능을 수행하는 Controller
+/// - 질문 목록 로드: 서버(TOC) 또는 로컬 기본 질문
+/// - 답변 처리: 1차 답변 -> AI 꼬리질문(2차) -> 최종 답변 병합(Combine) -> 저장
 enum AnswerPhase { primary, followUp }
 
 class SelfIntroController extends GetxController {
@@ -24,13 +26,13 @@ class SelfIntroController extends GetxController {
   final RxInt recordingSeconds = 0.obs;
   Timer? recordingTimer;
 
-  // 채팅 목록 & 스크롤 컨트롤러
+  // UI State: 채팅 메시지 리스트 및 스크롤 제어
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final ScrollController scrollController = ScrollController();
 
   // 현재 목차와 질문 정보
   int? currentTocId;
-  // Using QuestionDto for uniform handling
+  // QuestionDto 모델을 사용하여 질문 데이터를 통일되게 관리
   final RxList<QuestionDto> questions = <QuestionDto>[].obs;
   final RxInt currentQuestionIndex = 0.obs;
   final Rx<AnswerPhase> answerPhase = AnswerPhase.primary.obs;
@@ -43,7 +45,7 @@ class SelfIntroController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // arguments에서 tocId 가져오기
+    // 이전 화면(Home)에서 전달된 tocId 인자(arguments) 확인
     final arguments = Get.arguments;
     if (arguments != null && arguments['tocId'] != null) {
       currentTocId = arguments['tocId'] as int;
@@ -63,7 +65,7 @@ class SelfIntroController extends GetxController {
     try {
       if (currentTocId != null) {
         print('[SelfIntro] Loading questions for TOC ID: $currentTocId');
-        // Chapter Mode: Fetch questions from AutobiographyRepo (Life Legacy)
+        // Chapter Mode: 특정 목차(Chapter)에 대한 질문 목록을 서버에서 가져옵니다.
         final result = await postRepo.getQuestions(currentTocId!);
         print('[SelfIntro] Questions fetched: ${result.data.length} items');
         // Convert to QuestionDto for compatibility if needed, or update the list type
@@ -72,7 +74,7 @@ class SelfIntroController extends GetxController {
         print('[SelfIntro] Questions assigned: ${questions.length} items');
       } else {
         print('[SelfIntro] Loading default question (Onboarding Mode)');
-        // Onboarding Mode: Default starting question
+        // Onboarding Mode: 신규 사용자를 위한 기본 자기소개 질문을 로드합니다.
         questions.assignAll([
           QuestionDto(
               id: -1,
@@ -98,7 +100,7 @@ class SelfIntroController extends GetxController {
 
   // ... (middle parts unchanged)
 
-  /// 사용자 입력 전송
+  /// 사용자가 입력한 답변을 전송하고 처리합니다.
   Future<void> submitAnswer() async {
     final text = textController.text.trim();
     if (text.isEmpty) return;
@@ -144,7 +146,7 @@ class SelfIntroController extends GetxController {
   ) async {
     _pendingPrimaryAnswer = answer;
     try {
-      // AI 꼬리질문 생성
+      // 1차 답변 후, AI를 통해 2차 질문(꼬리질문)을 생성합니다.
       final aiResponse = await aiRepo.makeReQuestion(
         MakeReQuestionDto(
           question: question.questionText,
@@ -229,14 +231,14 @@ class SelfIntroController extends GetxController {
     String answer,
   ) async {
     if (currentTocId != null) {
-      // Chapter Mode: Save to Life Legacy API
+      // Chapter Mode: 답변을 서버에 저장합니다.
       await postRepo.saveAnswer(
         currentTocId!,
         question.id,
         AnswerSaveDto(answer: answer),
       );
     } else {
-      // Onboarding Mode: Just accumulate for Case generation
+      // Onboarding Mode: 최종 케이스 생성을 위해 답변을 로컬에 누적합니다.
       _accumulatedAnswers.writeln("Q: ${question.questionText}");
       _accumulatedAnswers.writeln("A: $answer");
     }
@@ -244,7 +246,8 @@ class SelfIntroController extends GetxController {
 
   // ... (middle parts unchanged)
 
-  /// 모든 질문 완료 시 AI 케이스 생성 및 저장 (Onboarding only?)
+  /// 모든 질문에 대한 답변 완료 후, 최종 데이터를 처리합니다.
+  /// (Onboarding Mode의 경우 유저 케이스 생성 요청 포함)
   Future<void> _finalizeSelfIntro() async {
     if (currentTocId != null) {
       // Chapter mode finish

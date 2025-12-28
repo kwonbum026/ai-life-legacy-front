@@ -59,7 +59,7 @@ class _AutobiographyWritePageState extends State<AutobiographyWritePage> {
       _answerController.text = answer.answerText;
     } on DioException catch (dioError) {
       if (dioError.response?.statusCode == 404) {
-        // 답변이 없는 경우 -> 정상적인 신규 작성 상태
+        // 404 Not Found: 답변이 아직 없는 상태이므로 신규 작성 모드로 초기화
         _answerId = null;
         _answerController.text = '';
       } else {
@@ -87,14 +87,14 @@ class _AutobiographyWritePageState extends State<AutobiographyWritePage> {
 
     try {
       if (_answerId == null) {
-        // Create new answer via Life Legacy API
+        // 신규 답변 작성 (Life Legacy API)
         await _postRepository.saveAnswer(
           widget.tocId,
           widget.questionId,
           AnswerSaveDto(answer: text),
         );
       } else {
-        // Update existing answer via User API
+        // 기존 답변 수정 (User API)
         await _userRepository.updateAnswer(
           _answerId!,
           AnswerUpdateDto(

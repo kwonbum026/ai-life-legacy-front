@@ -10,9 +10,8 @@ class MyPage extends GetView<MyPageController> {
   Widget build(BuildContext context) {
     // AuthController is persistent, so we can find it to get user info locally if stored
     final authController = Get.find<AuthController>();
-    // Assume userEmail is stored or accessible. If not, we use placeholder.
-    // Since AuthController might not expose email directly, we might need to fetch profile or just show generic.
-    // Let's assume for now we just show "User" or email if we had it.
+    // AuthController에서 사용자 정보를 조회하여 프로필 영역에 표시할 수 있습니다.
+    // 현재는 기본값("사용자")을 표시하도록 구현되어 있습니다.
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F3), // Light grey background
@@ -85,7 +84,7 @@ class MyPage extends GetView<MyPageController> {
                     icon: Icons.notifications_outlined,
                     title: '알림 설정',
                     onTap: () {
-                      // TODO: Implement notification settings
+                      // 추후 알림 설정 기능 구현 예정
                       Get.snackbar('알림', '준비 중인 기능입니다.');
                     },
                   ),

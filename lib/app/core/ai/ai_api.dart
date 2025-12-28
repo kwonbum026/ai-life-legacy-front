@@ -1,4 +1,4 @@
-// AI 관련 API 호출
+/// AI 관련 API 호출 클래스
 
 import 'package:dio/dio.dart';
 import 'package:ai_life_legacy/app/core/network/dio_client.dart';

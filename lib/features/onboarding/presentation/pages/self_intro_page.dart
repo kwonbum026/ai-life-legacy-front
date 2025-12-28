@@ -15,8 +15,7 @@ class SelfIntroPage extends GetView<SelfIntroController> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            // "작성 다 안하고 뒤로가기 하면 home 페이지로"
-            // Incomplete status logic will be handled by HomeController's empty state check
+            // 작성 미완료 상태에서 뒤로가기 시 홈 화면으로 이동합니다.
             Get.offAllNamed('/home');
           },
         ),
@@ -75,7 +74,7 @@ class SelfIntroPage extends GetView<SelfIntroController> {
                   ),
                   const SizedBox(height: 24),
 
-                  // 🔹 채팅 말풍선 렌더
+                  // 채팅 메시지(말풍선) 리스트 렌더링
                   ...controller.messages
                       .map((m) => _Bubble(text: m.text, isUser: m.isUser)),
 

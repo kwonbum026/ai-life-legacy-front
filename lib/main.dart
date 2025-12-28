@@ -1,4 +1,5 @@
-// 앱의 진입점(엔트리). runApp을 호출해 Flutter 위젯 트리를 띄움.
+/// 앱의 진입점(Entry Point)
+/// Flutter 엔진을 초기화하고 최상위 위젯(LegacyApp)을 실행합니다.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ai_life_legacy/bootstrap.dart';
@@ -6,10 +7,9 @@ import 'package:ai_life_legacy/app/core/routes/app_pages.dart';
 import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 import 'package:ai_life_legacy/app/initial_binding.dart';
 
-/// 프로그램 시작점. 동기/비동기 초기화 후 앱을 실행.
-/// WidgetsFlutterBinding.ensureInitialized(): 플러터 엔진/바인딩 초기화.
-/// bootstrap(): 환경/네트워크 초기화.
-/// runApp(): 최상위 위젯 트리를 화면에 띄움.
+/// Main 함수: 비동기 초기화 수행 후 앱 실행
+/// - WidgetsFlutterBinding 초기화
+/// - Bootstrap: 환경 설정, 토큰 로드, 네트워크 클라이언트 초기화
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await bootstrap();
@@ -19,7 +19,7 @@ void main() async {
 /// 앱 루트 위젯. 반환 타입: Widget.
 /// GetMaterialApp: GetX의 라우팅/로케일/테마 등을 제공하는 MaterialApp 확장.
 class LegacyApp extends StatelessWidget {
-  const LegacyApp({super.key}); // 플러터가 위젯 구별할 때 사용 (플러터 프레임워크가 알아서 사용)
+  const LegacyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

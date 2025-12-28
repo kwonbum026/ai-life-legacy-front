@@ -1,4 +1,5 @@
-// 사용자 관련 Repository
+/// 사용자(User) 데이터 관리 Repository 인터페이스
+/// API 호출을 추상화하여 비즈니스 로직에 제공합니다.
 
 import 'package:ai_life_legacy/features/user/data/user_api.dart';
 import 'package:ai_life_legacy/features/user/data/models/user.dto.dart';

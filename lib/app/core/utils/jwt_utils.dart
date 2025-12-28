@@ -1,4 +1,4 @@
-// JWT 토큰 디코딩 유틸리티
+/// JWT 토큰 파싱 및 유효성 검사 유틸리티
 
 import 'dart:convert';
 
@@ -10,8 +10,9 @@ class JwtUtils {
       if (parts.length != 3) return null;
 
       final payload = parts[1];
-      // Base64Url 디코딩 (패딩 추가)
-      String normalizedPayload = payload.replaceAll('-', '+').replaceAll('_', '/');
+      // Base64Url 형식을 Base64 표준으로 변환 (Padding 보정)
+      String normalizedPayload =
+          payload.replaceAll('-', '+').replaceAll('_', '/');
       switch (normalizedPayload.length % 4) {
         case 1:
           normalizedPayload += '===';
@@ -26,11 +27,11 @@ class JwtUtils {
 
       final decoded = base64Decode(normalizedPayload);
       final json = jsonDecode(utf8.decode(decoded)) as Map<String, dynamic>;
-      
+
       // JWT payload에서 uuid 또는 sub 등의 필드 확인
-      return json['uuid'] as String? ?? 
-             json['sub'] as String? ?? 
-             json['userId'] as String?;
+      return json['uuid'] as String? ??
+          json['sub'] as String? ??
+          json['userId'] as String?;
     } catch (e) {
       return null;
     }
@@ -43,7 +44,8 @@ class JwtUtils {
       if (parts.length != 3) return null;
 
       final payload = parts[1];
-      String normalizedPayload = payload.replaceAll('-', '+').replaceAll('_', '/');
+      String normalizedPayload =
+          payload.replaceAll('-', '+').replaceAll('_', '/');
       switch (normalizedPayload.length % 4) {
         case 1:
           normalizedPayload += '===';
@@ -67,11 +69,11 @@ class JwtUtils {
   static DateTime? getExpirationDate(String token) {
     final claims = getClaims(token);
     if (claims == null) return null;
-    
+
     final exp = claims['exp'];
     if (exp == null) return null;
-    
-    // exp는 Unix 타임스탬프 (초 단위)
+
+    // JWT의 exp claim은 Unix Timestamp(초 단위)를 사용합니다.
     return DateTime.fromMillisecondsSinceEpoch(exp * 1000);
   }
 
@@ -82,4 +84,3 @@ class JwtUtils {
     return DateTime.now().isAfter(expDate);
   }
 }
-
