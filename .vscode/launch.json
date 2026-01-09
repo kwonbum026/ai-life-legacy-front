@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AI Life Legacy (DEV)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define", "API_BASE_URL=https://ai-life-legacy-backend-nestjs.onrender.com",
+        "--dart-define", "DEBUG_MODE=true"
+      ]
+    },
+    {
+      "name": "AI Life Legacy (PROD)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define", "API_BASE_URL=https://real-prod-server.com",
+        "--dart-define", "DEBUG_MODE=false"
+      ]
+    }
+  ]
+}

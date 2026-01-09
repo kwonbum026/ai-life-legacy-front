@@ -1,14 +1,15 @@
-// 앱의 진입점(엔트리). runApp을 호출해 Flutter 위젯 트리를 띄움.
+/// 앱의 진입점(Entry Point)
+/// Flutter 엔진을 초기화하고 최상위 위젯(LegacyApp)을 실행합니다.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'bootstrap.dart';
-import 'app/core/routes/app_pages.dart';
-import 'app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/bootstrap.dart';
+import 'package:ai_life_legacy/app/core/routes/app_pages.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/app/initial_binding.dart';
 
-/// 프로그램 시작점. 동기/비동기 초기화 후 앱을 실행.
-/// WidgetsFlutterBinding.ensureInitialized(): 플러터 엔진/바인딩 초기화.
-/// bootstrap(): 환경/네트워크 초기화.
-/// runApp(): 최상위 위젯 트리를 화면에 띄움.
+/// Main 함수: 비동기 초기화 수행 후 앱 실행
+/// - WidgetsFlutterBinding 초기화
+/// - Bootstrap: 환경 설정, 토큰 로드, 네트워크 클라이언트 초기화
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await bootstrap();
@@ -23,10 +24,11 @@ class LegacyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,    // 디버그 배너 숨김
-      title: 'AI Life Legacy',              // 앱 타이틀(안드로이드 최근앱 등)
-      initialRoute: Routes.main,            // 첫 진입 라우트 경로
-      getPages: AppPages.pages,             // 라우트 정의 목록
+      debugShowCheckedModeBanner: false, // 디버그 배너 숨김
+      title: 'AI Life Legacy', // 앱 타이틀(안드로이드 최근앱 등)
+      initialRoute: Routes.main, // 첫 진입 라우트 경로
+      initialBinding: InitialBinding(), // 전역 바인딩 등록 (Auth 등)
+      getPages: AppPages.pages, // 라우트 정의 목록
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3F8CFF)),
         useMaterial3: true,

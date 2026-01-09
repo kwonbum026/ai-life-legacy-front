@@ -1,12 +1,11 @@
-// "시작 화면" 본체.
-// 버튼 2개(자서전 작성/보기) + 로그인 여부에 따라 라우팅 분기.
-// 간단한 페이드 인 애니메이션 포함.
+/// 앱의 시작(진입) 화면
+/// 로그인 상태에 따라 '자서전 작성' 또는 '자서전 보기' 버튼의 동작이 분기됩니다.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../../app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -21,7 +20,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _fadeCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900));
     _fade = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeInOut);
     _fadeCtrl.forward();
   }
@@ -32,17 +32,19 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  /// "자서전 작성" 버튼 콜백.
-  /// - AuthController의 isLoggedIn 값을 읽어 /home 또는 /login으로 이동.
+  /// '자서전 작성' 버튼 클릭 핸들러
+  /// 로그인 상태를 확인하여 Home 또는 Login 페이지로 이동합니다.
   void _goWrite(AuthController auth) {
     final loggedIn = auth.isLoggedIn.value;
-    Get.toNamed(loggedIn ? Routes.home : Routes.login, arguments: {'tab': 'write'});
+    Get.toNamed(loggedIn ? Routes.home : Routes.login,
+        arguments: {'tab': 'write'});
   }
 
-  /// "자서전 보기" 버튼 콜백. 위와 동일한 분기.
+  /// '자서전 보기' 버튼 클릭 핸들러
   void _goView(AuthController auth) {
     final loggedIn = auth.isLoggedIn.value;
-    Get.toNamed(loggedIn ? Routes.home : Routes.login, arguments: {'tab': 'view'});
+    Get.toNamed(loggedIn ? Routes.home : Routes.login,
+        arguments: {'tab': 'view'});
   }
 
   @override
@@ -92,7 +94,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
                 // 서브 타이틀 - 두 번째 줄
                 const Text(
-                  '맞춤형 사서전 제작 서비스',
+                  '맞춤형 자서전 제작 서비스',
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF666666),
@@ -163,11 +165,14 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 ),
                 const Spacer(),
                 Obx(() => Text(
-                  auth.loading.value
-                      ? '세션 확인 중...'
-                      : (auth.isLoggedIn.value ? '로그인 상태: ON' : '로그인 상태: OFF'),
-                  style: theme.textTheme.labelMedium?.copyWith(color: Colors.black45),
-                )),
+                      auth.loading.value
+                          ? '세션 확인 중...'
+                          : (auth.isLoggedIn.value
+                              ? '로그인 상태: ON'
+                              : '로그인 상태: OFF'),
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: Colors.black45),
+                    )),
               ],
             ),
           ),

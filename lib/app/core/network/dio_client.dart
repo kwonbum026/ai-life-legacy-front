@@ -1,19 +1,21 @@
-// 전역 Dio 인스턴스를 초기화하고 제공.
-// 장점: 공통 헤더/타임아웃/인터셉터를 한 곳에서 설정.
+/// 전역 Dio 클라이언트 인스턴스를 관리합니다.
+/// 공통 헤더, 타임아웃, 인터셉터 설정을 중앙화합니다.
 
 import 'package:dio/dio.dart';
-import '../config/env.dart';
+import 'package:ai_life_legacy/app/core/config/env.dart';
+import 'package:ai_life_legacy/app/core/utils/token_storage.dart';
+import 'package:ai_life_legacy/app/core/network/api_endpoints.dart';
 
 class DioClient {
-  // 실제 HTTP 요청을 담당하는 객체.
+  /// 실제 HTTP 요청을 수행하는 Dio 객체
   static late Dio _dio;
 
   /// 외부에서 읽기 전용으로 접근할 getter.
-  /// 반환 타입: Dio (싱글턴처럼 재사용)
+  /// 외부에서 접근 가능한 읽기 전용 Dio 인스턴스 (Singleton 패턴)
   static Dio get instance => _dio;
 
   /// 전역 Dio 초기화. 반환값 없음.
-  /// BaseOptions를 통해 baseUrl, timeout, headers 등을 설정.
+  /// Dio 인스턴스 초기화. BaseOptions를 통해 API 기본 설정(URL, Timeout, Header)을 적용합니다.
   static void init() {
     _dio = Dio(
       BaseOptions(
@@ -23,6 +25,93 @@ class DioClient {
         headers: {'Content-Type': 'application/json'},
       ),
     );
-    // TODO: 인터셉터(토큰 주입/로깅/에러핸들링) 추가 지점
+
+    // 인터셉터 추가: 로깅 및 인증 토큰 관리
+    _dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseHeader: false,
+        responseBody: true,
+        error: true,
+      ),
+    );
+
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // 요청 헤더에 Access Token 자동 주입
+          final accessToken = TokenStorage.getAccessToken();
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+          return handler.next(options);
+        },
+        onError: (error, handler) async {
+          // 401 Unauthorized 에러 발생 시 토큰 갱신 로직 수행
+          // 단, 로그인 요청 실패(비밀번호 오류 등)인 경우는 제외
+          final isLoginRequest =
+              error.requestOptions.path.contains(ApiEndpoints.login);
+
+          if (error.response?.statusCode == 401 && !isLoginRequest) {
+            try {
+              await _refreshTokenAndRetry(error.requestOptions, handler);
+            } catch (e) {
+              // 토큰 갱신 실패 시 로그아웃 처리 및 에러 전파
+              print('[DioClient] Token refresh failed: $e');
+              await TokenStorage.clearAll();
+              return handler.reject(error);
+            }
+          } else {
+            return handler.next(error);
+          }
+        },
+      ),
+    );
+  }
+
+  /// Refresh Token을 사용하여 Access Token을 갱신하고, 이전 요청을 재시도합니다.
+  static Future<void> _refreshTokenAndRetry(
+    RequestOptions requestOptions,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final refreshToken = TokenStorage.getRefreshToken();
+    if (refreshToken == null) {
+      throw Exception('Refresh token not found');
+    }
+
+    try {
+      // 토큰 갱신 API 호출 (DioClient 내부 인스턴스가 아닌 별도 호출로 순환 참조 방지)
+      final response = await _dio.post(
+        ApiEndpoints.refreshToken,
+        data: {'refreshToken': refreshToken},
+      );
+
+      final result = response.data as Map<String, dynamic>;
+      // API 응답 구조에 따라 'result' 혹은 'data' 필드에서 토큰 정보 추출
+      final tokenData =
+          (result['result'] ?? result['data']) as Map<String, dynamic>;
+
+      final newAccessToken = tokenData['accessToken'] as String;
+      final newRefreshToken = tokenData['refreshToken'] as String;
+
+      // 새 토큰 저장
+      await TokenStorage.saveTokens(
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      );
+
+      // 원래 요청 재시도
+      requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+      final retryResponse = await _dio.fetch(requestOptions);
+      return handler.resolve(retryResponse);
+    } catch (e) {
+      return handler.reject(
+        DioException(
+          requestOptions: requestOptions,
+          error: e,
+        ),
+      );
+    }
   }
 }
