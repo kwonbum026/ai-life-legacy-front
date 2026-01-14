@@ -3,8 +3,11 @@ import 'package:ai_life_legacy/features/home/presentation/controllers/home_contr
 import 'package:ai_life_legacy/features/user/data/user_api.dart';
 import 'package:ai_life_legacy/features/user/data/user_repository.dart';
 
-import 'package:ai_life_legacy/features/autobiography/data/autobiography_api.dart'; // import added
-import 'package:ai_life_legacy/features/autobiography/data/autobiography_repository.dart'; // import added
+import 'package:ai_life_legacy/features/autobiography/data/autobiography_api.dart';
+import 'package:ai_life_legacy/features/autobiography/data/autobiography_repository.dart';
+import 'package:ai_life_legacy/app/core/ai/ai_api.dart'; // import added
+import 'package:ai_life_legacy/app/core/ai/ai_repository.dart'; // import added
+import 'package:ai_life_legacy/features/onboarding/presentation/controllers/self_intro_controller.dart'; // import added
 
 class HomeBinding extends Bindings {
   @override
@@ -20,5 +23,19 @@ class HomeBinding extends Bindings {
     Get.lazyPut<AutobiographyRepository>(
         () => AutobiographyRepositoryImpl(Get.find<AutobiographyApi>()),
         fenix: true);
+
+    // SelfIntro (Onboarding) 관련 의존성 주입 (홈 탭 내에서 사용되므로)
+    Get.lazyPut(() => AiApi(), fenix: true);
+    Get.lazyPut<AiRepository>(() => AiRepositoryImpl(Get.find<AiApi>()),
+        fenix: true);
+
+    Get.lazyPut<SelfIntroController>(
+      () => SelfIntroController(
+        Get.find<UserRepository>(),
+        Get.find<AutobiographyRepository>(),
+        Get.find<AiRepository>(),
+      ),
+      fenix: true,
+    );
   }
 }

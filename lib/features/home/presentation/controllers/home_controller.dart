@@ -84,37 +84,20 @@ class HomeController extends GetxController {
   /// 챕터 카드 클릭 시 이벤트 핸들러
   void onChapterTap(ChapterModel chapter) {
     print("챕터 ${chapter.id} 클릭됨: ${chapter.title}");
-    // 클릭한 챕터 ID를 전달하며 자기소개(Onboarding) 페이지로 이동
-    // 복귀 시 목차 목록 새로고침
-    Get.toNamed(Routes.selfIntro, arguments: {'tocId': chapter.id})
-        ?.then((_) => loadUserContents());
+    // 챕터를 클릭하면 '자기소개 작성' 탭으로 이동하고 해당 챕터를 로드해야 할 수 있음.
+    // 기존에는 arguments로 전달했으나, 탭 전환 방식에서는 상태 관리가 필요함.
+    // 여기서는 간단히 탭 전환만 수행하고, 필요 시 SelfIntroController에 상태 주입 필요.
+    
+    // TODO: SelfIntroController에 tocId 전달하여 특정 챕터 질문 로드하도록 연동 필요
+    // 일단 탭 전환만 적용
+    selectedTabIndex.value = 1;
   }
 
   /// 하단 탭 바 선택 변경 핸들러
   void changeTab(int index) {
-    // 탭 인덱스에 따른 단순 기능 실행 (페이지 이동 X, 기능 수행 O)
-
-    switch (index) {
-      case 0:
-        // 홈: 현재 화면 (새로고침?)
-        loadUserContents();
-        break;
-      case 1:
-        // 자기소개 작성
-        if (chapters.isNotEmpty) {
-          ToastUtils.showInfoToast('이미 자기소개를 완료하셨습니다.');
-        } else {
-          Get.toNamed(Routes.selfIntro);
-        }
-        break;
-      case 2:
-        // 자서전 확인 탭
-        if (chapters.isEmpty) {
-          ToastUtils.showInfoToast('먼저 자기소개를 작성해주세요.');
-        } else {
-          Get.toNamed(Routes.autobiography);
-        }
-        break;
+    selectedTabIndex.value = index;
+    if (index == 0) {
+      loadUserContents();
     }
   }
 

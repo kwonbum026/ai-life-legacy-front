@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ai_life_legacy/features/onboarding/presentation/controllers/self_intro_controller.dart';
+import 'package:ai_life_legacy/features/home/presentation/controllers/home_controller.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart'; // import added
 
 class SelfIntroPage extends GetView<SelfIntroController> {
   const SelfIntroPage({super.key});
@@ -10,23 +12,25 @@ class SelfIntroPage extends GetView<SelfIntroController> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF5B9FED),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0, // 스크롤 시 색상 변경 방지
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            // 작성 미완료 상태에서 뒤로가기 시 홈 화면으로 이동합니다.
-            Get.offAllNamed('/home');
-          },
-        ),
-        title: Text(
+        title: const Text(
           '자기소개',
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.black),
+            onPressed: () => Get.toNamed(Routes.myPage),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
@@ -103,11 +107,17 @@ class SelfIntroPage extends GetView<SelfIntroController> {
                   padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: Row(
                     children: [
-                      // X 버튼
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.grey),
-                        onPressed: () => controller.clearText(),
-                      ),
+                      // + / X 버튼 (음성 녹음 토글)
+                      Obx(() => IconButton(
+                            icon: Icon(
+                              controller.isVoiceRecorderVisible.value
+                                  ? Icons.close
+                                  : Icons.add,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () =>
+                                controller.toggleVoiceRecorderVisible(),
+                          )),
                       SizedBox(width: 8),
                       // 입력 필드
                       Expanded(
@@ -158,63 +168,68 @@ class SelfIntroPage extends GetView<SelfIntroController> {
                   ),
                 ),
                 // 음성인식 영역
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Column(
-                    children: [
-                      Text(
-                        '음성인식',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w600,
+                Obx(() {
+                  if (!controller.isVoiceRecorderVisible.value) {
+                    return const SizedBox.shrink();
+                  }
+                  return Container(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          '음성인식',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // 녹음 시간 표시
-                          Obx(() => Text(
-                                controller.getFormattedTime(),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
-                              )),
-                          SizedBox(width: 24),
-                          // 녹음 버튼
-                          Obx(() => GestureDetector(
-                                onTap: () => controller.toggleRecording(),
-                                child: Container(
-                                  width: 64,
-                                  height: 64,
-                                  decoration: BoxDecoration(
-                                    color: controller.isRecording.value
-                                        ? Color(0xFFFF5252)
-                                        : Color(0xFFFF5252),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            Color(0xFFFF5252).withOpacity(0.3),
-                                        blurRadius: 12,
-                                        spreadRadius: 2,
-                                      ),
-                                    ],
+                        SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 녹음 시간 표시
+                            Obx(() => Text(
+                                  controller.getFormattedTime(),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black54,
                                   ),
-                                  child: Icon(
-                                    Icons.mic,
-                                    color: Colors.white,
-                                    size: 32,
+                                )),
+                            SizedBox(width: 24),
+                            // 녹음 버튼
+                            Obx(() => GestureDetector(
+                                  onTap: () => controller.toggleRecording(),
+                                  child: Container(
+                                    width: 64,
+                                    height: 64,
+                                    decoration: BoxDecoration(
+                                      color: controller.isRecording.value
+                                          ? Color(0xFFFF5252)
+                                          : Color(0xFFFF5252),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color:
+                                              Color(0xFFFF5252).withOpacity(0.3),
+                                          blurRadius: 12,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      Icons.mic,
+                                      color: Colors.white,
+                                      size: 32,
+                                    ),
                                   ),
-                                ),
-                              )),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                                )),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
