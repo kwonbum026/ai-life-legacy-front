@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ai_life_legacy/features/chapter_chat/presentation/controllers/chapter_chat_controller.dart';
+import 'package:ai_life_legacy/features/common/presentation/widgets/unified_chat_input_widget.dart';
 
 class ChapterChatPage extends GetView<ChapterChatController> {
   const ChapterChatPage({super.key});
@@ -79,132 +80,16 @@ class ChapterChatPage extends GetView<ChapterChatController> {
             }),
           ),
 
-          // Input Area
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: Row(
-                    children: [
-                      Obx(() => IconButton(
-                            icon: Icon(
-                              controller.isVoiceRecorderVisible.value
-                                  ? Icons.close
-                                  : Icons.add,
-                              color: Colors.grey,
-                            ),
-                            onPressed: controller.toggleVoiceRecorderVisible,
-                          )),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Obx(() => TextField(
-                              controller: controller.textController,
-                              enabled: !controller.loading.value,
-                              decoration: InputDecoration(
-                                hintText: '답변을 입력하세요.',
-                                hintStyle: TextStyle(color: Colors.grey[400]),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                              style: const TextStyle(fontSize: 16),
-                              maxLines: 1,
-                              onSubmitted: (_) => controller.submitAnswer(),
-                            )),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF5B9FED),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Obx(() {
-                          final isProcessing = controller.loading.value;
-                          return IconButton(
-                            icon: isProcessing
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : const Icon(Icons.arrow_upward, color: Colors.white),
-                            onPressed: isProcessing ? null : controller.submitAnswer,
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Voice Recorder
-                Obx(() {
-                  if (!controller.isVoiceRecorderVisible.value) {
-                    return const SizedBox.shrink();
-                  }
-                  return Container(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        const Text(
-                          '음성인식',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Obx(() => Text(
-                                  controller.getFormattedTime(),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black54,
-                                  ),
-                                )),
-                            const SizedBox(width: 24),
-                            Obx(() => GestureDetector(
-                                  onTap: controller.toggleRecording,
-                                  child: Container(
-                                    width: 64,
-                                    height: 64,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFF5252),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFFFF5252).withOpacity(0.3),
-                                          blurRadius: 12,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(Icons.mic, color: Colors.white, size: 32),
-                                  ),
-                                )),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
+          // Unified Input Widget
+          UnifiedChatInputWidget(
+            textController: controller.textController,
+            onSubmitted: controller.submitAnswer,
+            onToggleVoice: controller.toggleVoiceRecorderVisible,
+            onToggleRecording: controller.toggleRecording,
+            isVoiceRecorderVisible: controller.isVoiceRecorderVisible,
+            isRecording: controller.isRecording,
+            isLoading: controller.loading,
+            formattedTime: controller.getFormattedTime(),
           ),
         ],
       ),

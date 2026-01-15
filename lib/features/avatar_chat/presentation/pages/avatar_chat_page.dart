@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ai_life_legacy/features/avatar_chat/presentation/controllers/avatar_chat_controller.dart';
+import 'package:ai_life_legacy/features/common/presentation/widgets/unified_chat_input_widget.dart';
+import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
 
 class AvatarChatPage extends GetView<AvatarChatController> {
   const AvatarChatPage({super.key});
@@ -19,6 +21,13 @@ class AvatarChatPage extends GetView<AvatarChatController> {
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.black),
+            onPressed: () => Get.toNamed(Routes.myPage),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
@@ -30,8 +39,8 @@ class AvatarChatPage extends GetView<AvatarChatController> {
                 itemCount: controller.messages.length,
                 itemBuilder: (context, index) {
                   final msg = controller.messages[index];
-                  // 간단한 더미 UI: 짝수(시스템), 홀수(유저)라 가정하거나, 그냥 구분 없이 나열
-                  // 여기서는 "안녕하세요" 등이 포함되면 시스템 메시지라 가정하는 등 단순 처리 혹은 그냥 왼쪽 정렬
+                  // 간단한 더미 UI: 왼쪽(시스템), 오른쪽(유저)
+                  // 메시지 내용에 따라 시스템 메시지 여부 판단 (더미 로직)
                   final isSystem = msg.contains("입니다") || msg.contains("도와") || msg.contains("죄송"); 
                   
                   return Align(
@@ -55,33 +64,15 @@ class AvatarChatPage extends GetView<AvatarChatController> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller.textController,
-                    decoration: InputDecoration(
-                      hintText: '메시지를 입력하세요...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                    onSubmitted: (_) => controller.sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Color(0xFF4A9EFF)),
-                  onPressed: controller.sendMessage,
-                ),
-              ],
-            ),
+          UnifiedChatInputWidget(
+            textController: controller.textController,
+            onSubmitted: controller.sendMessage,
+            onToggleVoice: controller.toggleVoiceRecorderVisible,
+            onToggleRecording: controller.toggleRecording,
+            isVoiceRecorderVisible: controller.isVoiceRecorderVisible,
+            isRecording: controller.isRecording,
+            isLoading: controller.isLoading,
+            formattedTime: controller.getFormattedTime(),
           ),
         ],
       ),

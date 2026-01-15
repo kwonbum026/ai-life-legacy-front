@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:ai_life_legacy/features/onboarding/presentation/controllers/self_intro_controller.dart';
 import 'package:ai_life_legacy/features/home/presentation/controllers/home_controller.dart';
 import 'package:ai_life_legacy/app/core/routes/app_routes.dart';
+import 'package:ai_life_legacy/features/common/presentation/widgets/unified_chat_input_widget.dart';
 
 class SelfIntroPage extends GetView<SelfIntroController> {
   const SelfIntroPage({super.key});
@@ -88,150 +89,16 @@ class SelfIntroPage extends GetView<SelfIntroController> {
             }),
           ),
 
-          // 하단 입력 영역
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // 텍스트 입력 필드
-                Padding(
-                  padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: Row(
-                    children: [
-                      // + / X 버튼 (음성 녹음 토글)
-                      Obx(() => IconButton(
-                            icon: Icon(
-                              controller.isVoiceRecorderVisible.value
-                                  ? Icons.close
-                                  : Icons.add,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () =>
-                                controller.toggleVoiceRecorderVisible(),
-                          )),
-                      SizedBox(width: 8),
-                      // 입력 필드
-                      Expanded(
-                        child: Obx(() => TextField(
-                              controller: controller.textController,
-                              enabled: !controller.loading.value,
-                              decoration: InputDecoration(
-                                hintText: '답변을 입력하세요.',
-                                hintStyle: TextStyle(color: Colors.grey[400]),
-                                border: InputBorder.none,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                              style: const TextStyle(fontSize: 16),
-                              maxLines: 1,
-                              onSubmitted: (_) => controller.submitAnswer(),
-                            )),
-                      ),
-                      SizedBox(width: 8),
-                      // 전송 버튼
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFF5B9FED),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Obx(() {
-                          final isProcessing = controller.loading.value;
-                          return IconButton(
-                            icon: isProcessing
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  )
-                                : const Icon(Icons.arrow_upward,
-                                    color: Colors.white),
-                            onPressed: isProcessing
-                                ? null
-                                : () => controller.submitAnswer(),
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-                // 음성인식 영역
-                Obx(() {
-                  if (!controller.isVoiceRecorderVisible.value) {
-                    return const SizedBox.shrink();
-                  }
-                  return Container(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        Text(
-                          '음성인식',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // 녹음 시간 표시
-                            Obx(() => Text(
-                                  controller.getFormattedTime(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black54,
-                                  ),
-                                )),
-                            SizedBox(width: 24),
-                            // 녹음 버튼
-                            Obx(() => GestureDetector(
-                                  onTap: () => controller.toggleRecording(),
-                                  child: Container(
-                                    width: 64,
-                                    height: 64,
-                                    decoration: BoxDecoration(
-                                      color: controller.isRecording.value
-                                          ? Color(0xFFFF5252)
-                                          : Color(0xFFFF5252),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color:
-                                              Color(0xFFFF5252).withOpacity(0.3),
-                                          blurRadius: 12,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Icon(
-                                      Icons.mic,
-                                      color: Colors.white,
-                                      size: 32,
-                                    ),
-                                  ),
-                                )),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
+          // Unified Input Widget
+          UnifiedChatInputWidget(
+            textController: controller.textController,
+            onSubmitted: controller.submitAnswer,
+            onToggleVoice: controller.toggleVoiceRecorderVisible,
+            onToggleRecording: controller.toggleRecording,
+            isVoiceRecorderVisible: controller.isVoiceRecorderVisible,
+            isRecording: controller.isRecording,
+            isLoading: controller.loading,
+            formattedTime: controller.getFormattedTime(),
           ),
         ],
       ),
